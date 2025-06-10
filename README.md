@@ -1,7 +1,6 @@
 # LinkUS
 
-Aplicação web para compartilhamento de interesses literários, onde os usuários podem conversar sobre livros, criar conexões, postar conteúdos e participar de grupos temáticos — inspirada no conceito do Skoob.
-
+Aplicação web para compartilhamento de interesses literários, onde os usuários podem conversar sobre livros, criar conexões, postar conteúdos e participar de grupos temáticos. — 
 ---
 
 ## Tecnologias Utilizadas
