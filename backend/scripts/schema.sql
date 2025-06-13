@@ -24,16 +24,17 @@ create table if not exists usuario_interesse (
 );
 
 create table if not exists conexao (
-	id_conexao char(36) primary key default (uuid()),
     usuario_1 char(36) not null,
     usuario_2 char(36) not null,
+    status enum("solicitado", "aceito") default "solicitado",
+    primary key(usuario_1, usuario_2),
     foreign key(usuario_1) references usuario(id_usuario),
 	foreign key(usuario_2) references usuario(id_usuario)
 );
 
 create table if not exists grupo (
 	id_grupo char(36) primary key default (uuid()),
-    nome varchar(100) not null,
+    nome varchar(100) not null unique,
     descricao text not null,
     data_criacao datetime default current_timestamp,
     fk_criador char(36) not null,
@@ -45,15 +46,15 @@ create table if not exists mensagem (
     texto text not null,
     data_envio datetime default current_timestamp,
     status enum("enviado", "entregue", "visualizado") default "enviado",
-    fk_conexao char(36),
+    fk_destinatario char(36),
     fk_remetente char(36) not null,
     fk_grupo char(36),
-    foreign key(fk_conexao) references conexao(id_conexao),
+    foreign key(fk_destinatario) references usuario(id_usuario),
 	foreign key(fk_remetente) references usuario(id_usuario),
     foreign key(fk_grupo) references grupo(id_grupo),
     constraint um_preenchido check (
-		    (fk_conexao is not null or fk_grupo is not null) and
-        (fk_conexao is null or fk_grupo is null)
+		    (fk_destinatario is not null or fk_grupo is not null) and
+        (fk_destinatario is null or fk_grupo is null)
 	)
 );
 
@@ -75,8 +76,7 @@ create table if not exists postagem(
     fk_autor char(36) not null,
     foreign key(fk_autor) references usuario(id_usuario),
     constraint algum_preenchido check(
-		    (texto is not null or url_midia is not null) and 
-        (texto is null or url_midia is null)
+        texto is not null or url_midia is not null
     )
 );
 
@@ -89,4 +89,15 @@ create table if not exists comentario(
     foreign key(fk_autor) references usuario(id_usuario),
 	foreign key(fk_postagem) references postagem(id_postagem),
 	foreign key(fk_comentario_pai) references comentario(id_comentario)
+);
+
+create table if not exists interacao(
+	id_interacao char(36) primary key default (uuid()),
+	tipo enum("like", "dislike") not null,
+	fk_postagem char(36) not null,
+    fk_usuario char(36) not null,
+    fk_comentario char(36),
+    foreign key(fk_postagem) references postagem(id_postagem),
+    foreign key(fk_usuario) references usuario(id_usuario),
+	foreign key(fk_comentario) references comentario(id_comentario)
 );

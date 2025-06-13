@@ -9,4 +9,7 @@ services:
       - "3306:3306"
     volumes:
       - ./scripts/schema.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
     restart: unless-stopped
+volumes:
+  mysql_data:

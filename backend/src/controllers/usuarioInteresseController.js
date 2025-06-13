@@ -9,7 +9,7 @@ export async function criarUsuarioInteresse(req, res) {
     "INSERT IGNORE INTO usuario_interesse(fk_interesse, fk_usuario) values(?, ?)";
 
   if (!body?.email || !body?.interesse)
-    return res.status(401).send("informe todos os  campos");
+    return res.status(400).send("informe todos os campos");
 
   try {
     const [resultAcharUsuario] = await pool.query(acharUsuarioSQL, body.email);

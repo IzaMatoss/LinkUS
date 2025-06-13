@@ -10,13 +10,23 @@ export async function criarUsuario(req, res) {
     !usuario.senha ||
     !usuario.data_nascimento
   )
-    return res.status(401).send("informe todos os  campos");
+    return res.status(400).send("informe todos os  campos");
   const criarSQL =
     "INSERT INTO usuario(nome, email, senha, data_nascimento) values(?, ?, ?, ?)";
+  const acharUsuarioPorNomeOuEmailSQL =
+    "SELECT * from usuario where nome = ? or email = ?";
 
   const senhaComHash = await bcrypt.hash(usuario.senha, 8);
 
   try {
+    const [resultAchar] = await pool.query(acharUsuarioPorNomeOuEmailSQL, [
+      usuario.nome,
+      usuario.email,
+    ]);
+
+    if (resultAchar[0])
+      return res.status(400).send("Nome ou email já cadastrado");
+
     const [result] = await pool.query(criarSQL, [
       usuario.nome,
       usuario.email,
@@ -31,18 +41,56 @@ export async function criarUsuario(req, res) {
   }
 }
 
-export async function acharUsuario(req, res) {
-  const email = req.params.email;
-  const senha = req.params.senha;
-  const acharSQL = "SELECT * from usuario where email = ?";
+export async function logarUsuario(req, res) {
+  const email = req.body.email;
+  const senha = req.body.senha;
+  const logarSQL =
+    "SELECT u.*, JSON_ARRAYAGG(i.nome) AS interesses from usuario u left join usuario_interesse ui on ui.fk_usuario = u.id_usuario left join interesse i on ui.fk_interesse = i.id_interesse where email = ? group by u.email";
 
   try {
-    const [result] = await pool.query(acharSQL, [email]);
+    const [result] = await pool.query(logarSQL, [email]);
     if (!result || !result.length)
       return res.status(404).send("Usuário não encontrado");
     if (await bcrypt.compare(senha, result[0].senha))
       return res.status(200).send(result[0]);
     return res.status(401).send("Senha incorreta");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Erro interno do servidor");
+  }
+}
+
+export async function acharUsuariosPorInteresse(req, res) {
+  const { email } = req.params;
+  const acharUsuariosPorInteresseSQL =
+    "SELECT u.nome, u.url_foto, u.data_nascimento, COUNT(*) AS interesses_em_comum FROM usuario u JOIN usuario_interesse ui ON ui.fk_usuario = u.id_usuario JOIN interesse i ON i.id_interesse = ui.fk_interesse WHERE ui.fk_interesse IN (SELECT fk_interesse FROM usuario_interesse ui join usuario u on ui.fk_usuario = u.id_usuario where u.email = ?) AND u.email != ? GROUP BY u.id_usuario ORDER BY interesses_em_comum DESC";
+
+  try {
+    const [result] = await pool.query(acharUsuariosPorInteresseSQL, [
+      email,
+      email,
+    ]);
+    if (!result.length)
+      return res
+        .status(404)
+        .send("Não há relações de interesse entre esse usuário e outros");
+
+    return res.status(200).send(result);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Erro interno do servidor");
+  }
+}
+
+export async function acharUsuarios(req, res) {
+  const acharUsuariosSQL =
+    "SELECT u.nome, u.url_foto, u.data_nascimento from usuario u left join usuario_interesse ui on u.id_usuario = ui.fk_usuario left join interesse i on i.id_interesse = ui.fk_interesse";
+
+  try {
+    const [resultAcharUsuarios] = await pool.query(acharUsuariosSQL);
+    if (!resultAcharUsuarios)
+      return res.status(404).send("Nenhum usuário foi encontrado");
+    return res.status(200).send(resultAcharUsuarios);
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor");
