@@ -9,6 +9,7 @@ import mensagensRoutes from "./routes/mensagensRoutes.js";
 import postagensRoutes from "./routes/postagensRoutes.js";
 import comentariosRoutes from "./routes/comentariosRoutes.js";
 import interacoesRoutes from "./routes/interacoesRoutes.js";
+import { verificarToken } from "./middlewareAutenticador.js";
 
 dotenv.config();
 
@@ -21,13 +22,13 @@ app.use(express.json());
 
 app.use("/usuario", usuariosRoutes);
 
-app.use("/usuarioInteresse", usuariosInteressesRoutes);
+app.use("/usuarioInteresse", verificarToken, usuariosInteressesRoutes);
 
 app.use("/conexao", conexoesRoutes);
 
 app.use("/grupo", gruposRoutes);
 
-app.use("/mensagem", mensagensRoutes);
+app.use("/mensagem", verificarToken, mensagensRoutes);
 
 app.use("/postagem", postagensRoutes);
 

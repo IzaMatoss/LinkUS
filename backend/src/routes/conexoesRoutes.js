@@ -4,11 +4,12 @@ import {
   aceitarSolicitacao,
   recusarSolicitacao,
 } from "../controllers/conexaoController.js";
+import { verificarToken } from "../middlewareAutenticador.js";
 
 const router = Router();
 
-router.post("/enviarSolicitacao", enviarSolicitacao);
-router.put("/aceitarSolicitacao", aceitarSolicitacao);
-router.delete("/recusarSolicitacao", recusarSolicitacao);
+router.post("/enviarSolicitacao", verificarToken, enviarSolicitacao);
+router.put("/aceitarSolicitacao", verificarToken, aceitarSolicitacao);
+router.delete("/recusarSolicitacao", verificarToken, recusarSolicitacao);
 
 export default router;

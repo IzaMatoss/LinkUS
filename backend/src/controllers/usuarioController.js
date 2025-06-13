@@ -1,5 +1,9 @@
 import pool from "../db.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export async function criarUsuario(req, res) {
   const usuario = req.body;
@@ -51,9 +55,14 @@ export async function logarUsuario(req, res) {
     const [result] = await pool.query(logarSQL, [email]);
     if (!result || !result.length)
       return res.status(404).send("Usuário não encontrado");
-    if (await bcrypt.compare(senha, result[0].senha))
-      return res.status(200).send(result[0]);
-    return res.status(401).send("Senha incorreta");
+    if (!(await bcrypt.compare(senha, result[0].senha)))
+      return res.status(401).send("Senha incorreta");
+
+    const token = jwt.sign(result[0], process.env.JWT_SECRET, {
+      expiresIn: "6h",
+    });
+
+    return res.status(200).send({ token });
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor");

@@ -5,12 +5,17 @@ import {
   acharUsuariosPorInteresse,
   acharUsuarios,
 } from "../controllers/usuarioController.js";
+import { verificarToken } from "../middlewareAutenticador.js";
 
 const router = Router();
 
 router.post("/criarUsuario", criarUsuario);
 router.post("/logarUsuario", logarUsuario);
-router.get("/acharPorInteresse/:email", acharUsuariosPorInteresse);
+router.get(
+  "/acharPorInteresse/:email",
+  verificarToken,
+  acharUsuariosPorInteresse
+);
 router.get("/acharUsuarios", acharUsuarios);
 
 export default router;
