@@ -19,7 +19,7 @@ export const LandingPage = () => {
           <img
             className="hero-image"
             alt="Person reading a book"
-            src="https://c.animaapp.com/mbwv2ae2ebcJiw/img/image-2.png"
+            src="../../public/ilustrations/ilustracao5.png"
           />
           <div className="hero-content">
             <h1 className="hero-title">Conecte-se através dos livros</h1>
@@ -71,7 +71,7 @@ export const LandingPage = () => {
           <img
             className="cta-image"
             alt="People sharing books"
-            src="https://c.animaapp.com/mbwv2ae2ebcJiw/img/image-3.png"
+            src="../../public/ilustrations/ilustracao6.png"
           />
           <div className="cta-content">
             <h2 className="cta-title">Sua próxima história começa aqui!</h2>
