@@ -5,6 +5,7 @@ h1,
 h2,
 h3,
 h4,
+ul,
 body {
   margin: 0px;
   padding: 0px;
@@ -36,4 +37,8 @@ li {
   padding: 32px 60px;
   border-radius: 8px;
   max-height: 80vh;
+}
+
+.container {
+  margin: 0px 60px;
 }

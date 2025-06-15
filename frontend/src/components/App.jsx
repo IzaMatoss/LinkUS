@@ -1,3 +1,4 @@
+import React from "react";
 import Loading from "./Loading.jsx";
 import { useUsuarios } from "./providers/useUsuarios";
 import { LandingPage } from "./LandingPage.jsx";

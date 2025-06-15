@@ -70,7 +70,7 @@ create table if not exists participante(
 create table if not exists postagem(
 	id_postagem char(36) primary key default (uuid()),
     data_criacao datetime default current_timestamp,
-    tipo_conteudo enum("audio", "imagem"),
+    tipo_conteudo enum("video", "imagem"),
     texto text,
     url_midia varchar(150),
     fk_autor char(36) not null,
@@ -82,6 +82,7 @@ create table if not exists postagem(
 
 create table if not exists comentario(
 	id_comentario char(36) primary key default (uuid()),
+    data_criacao datetime default current_timestamp,
     conteudo text not null,
 	fk_autor char(36) not null,
     fk_postagem char(36) not null,

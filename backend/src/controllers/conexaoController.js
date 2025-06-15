@@ -110,3 +110,36 @@ export async function recusarSolicitacao(req, res) {
     return res.status(500).send("Erro interno do servidor");
   }
 }
+
+export async function acharConexoes(req, res) {
+  const { nome } = req.params;
+  const acharUsuarioPorNomeSQL =
+    "SELECT id_usuario from usuario where nome = ?";
+  const acharConexoesSQL =
+    "SELECT u.nome from usuario u join conexao c on c.usuario_1 = ? or c.usuario_2 = ? and usuario_id != ? where c.status = 'aceito'";
+
+  try {
+    const [resultAcharUsuarioPorNome] = await pool.query(
+      acharUsuarioPorNomeSQL,
+      [nome]
+    );
+    if (!resultAcharUsuarioPorNome[0])
+      return res.status(404).send("Usuário não encontrado");
+
+    const [resultAcharConexoes] = await pool.query(acharConexoesSQL, [
+      resultAcharUsuarioPorNome[0].usuario_id,
+      resultAcharUsuarioPorNome[0].usuario_id,
+      resultAcharUsuarioPorNome[0].usuario_id,
+    ]);
+
+    if (!resultAcharConexoes)
+      return res
+        .status(400)
+        .send("Erro ao tentar achar as conexões do usuário");
+
+    return res.status(200).send(resultAcharConexoes);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Erro interno do servidor");
+  }
+}

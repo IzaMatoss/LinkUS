@@ -152,3 +152,33 @@ export async function acharGrupos(req, res) {
     return res.status(500).send("Erro interno do servidor");
   }
 }
+
+export async function acharGruposPorUsuario(req, res) {
+  const { nome } = req.params;
+  const acharUsuarioPorNomeSQL =
+    "SELECT id_usuario from usuario where nome = ?";
+  const acharGrupoPorUsuarioSQL =
+    "SELECT g.nome, g.descricao from grupo g join participante p on p.fk_grupo = g.id_grupo where p.fk_participante = ?";
+
+  try {
+    const [resultAcharUsuarioPorNome] = await pool.query(
+      acharUsuarioPorNomeSQL,
+      [nome]
+    );
+    if (!resultAcharUsuarioPorNome[0])
+      return res.status(404).send("Usuário não encontrado");
+
+    const [resultAcharGrupoPorUsuario] = await pool.query(
+      acharGrupoPorUsuarioSQL,
+      [resultAcharUsuarioPorNome[0].id_usuario]
+    );
+
+    if (!resultAcharGrupoPorUsuario)
+      return res.status(400).send("Erro ao tentar achar os grupos do usuário");
+
+    return res.status(200).send(resultAcharGrupoPorUsuario);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Erro interno do servidor");
+  }
+}

@@ -40,7 +40,7 @@ export async function criarInteracao(req, res) {
       interacao.tipo,
       resultAcharUsuarioPorNome[0].id_usuario,
       interacao.id_postagem,
-      interacao.id_interacao,
+      interacao.id_comentario,
     ]);
 
     if (!resultCriarInteracao)
@@ -53,22 +53,43 @@ export async function criarInteracao(req, res) {
   }
 }
 
-export async function contarInteracoes(req, res) {
-  const contarInteracoesSQL =
-    "SELECT COUNT(*) as interacoes from interacao where fk_postagem = ? or fk_comentario = ?";
+export async function temInteracaoPost(req, res) {
+  const { email, id_postagem } = req.body;
+  const temInteracaoSQL =
+    "SELECT i.tipo from interacao i join usuario u on u.id_usuario = i.fk_usuario where u.email = ? and i.fk_postagem = ?";
 
   try {
-    const [resultContarInteracoes] = await pool.query(contarInteracoesSQL, [
-      req.params.id,
-      req.params.id,
+    const [resultTemInteracao] = await pool.query(temInteracaoSQL, [
+      email,
+      id_postagem,
     ]);
+    if (!resultTemInteracao)
+      return res
+        .status(400)
+        .send("Erro ao tentar verificar ses o usuário interagiu na postagem");
+    if (!resultTemInteracao[0])
+      return res.status(202).send("Usuário não interagiu na postagem");
 
-    if (!resultContarInteracoes[0])
-      return res.status(400).send("Erro ao tentar contar as interações");
-
-    return res.status(200).send(resultContarInteracoes[0]);
+    return res.status(200).send({ tipo: resultTemInteracao[0].tipo });
   } catch (error) {
     console.error(error);
-    return res.status(500).send("Erro interno do servidor");
+  }
+}
+
+export async function temInteracaoComentario(req, res) {
+  const { email, id_comentario } = req.body;
+  const temInteracaoSQL =
+    "SELECT i.tipo from interacao i join usuario u on u.id_usuario = i.fk_usuario join comentario c on c.id_comentario = i.fk_comentario where u.email = ? and c.id_comentario = ?";
+
+  try {
+    const [result] = await pool.query(temInteracaoSQL, [email, id_comentario]);
+
+    if (!result || result.length === 0)
+      return res.status(202).send("Usuário não interagiu no comentário");
+
+    return res.status(200).send({ tipo: result[0].tipo });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Erro ao verificar interação no comentário");
   }
 }

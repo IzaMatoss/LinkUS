@@ -1,5 +1,25 @@
 import pool from "../db.js";
 
+function montarComentariosAninhados(comentarios) {
+  const mapa = {};
+  const raiz = []; //comentarios da postagem
+
+  for (const comentario of comentarios) {
+    comentario.subcomentarios = [];
+    mapa[comentario.id_comentario] = comentario;
+  }
+
+  for (const comentario of comentarios) {
+    if (comentario.fk_comentario_pai) {
+      mapa[comentario.fk_comentario_pai]?.subcomentarios.push(comentario);
+    } else {
+      raiz.push(comentario);
+    }
+  }
+
+  return raiz;
+}
+
 export async function criarPostagem(req, res) {
   const post = req.body;
   const acharUsuarioPorNomeSQL =
@@ -37,11 +57,42 @@ export async function acharPostagens(req, res) {
   const acharPostagensSQL =
     "SELECT id_postagem, data_criacao, tipo_conteudo, texto, url_midia, nome, url_foto from postagem p join usuario u on u.id_usuario = p.fk_autor";
 
+  const acharAvaliacoesPositivasSQL =
+    "SELECT COUNT(*) as positivas from interacao i join postagem p on i.fk_postagem = p.id_postagem where p.id_postagem = ? and i.tipo = 'like' and i.fk_comentario IS NULL";
+
+  const acharAvaliacoesNegativasSQL =
+    "SELECT COUNT(*) as negativas from interacao i join postagem p on i.fk_postagem = p.id_postagem where p.id_postagem = ? and i.tipo = 'dislike' and i.fk_comentario IS NULL";
+
+  const acharComentariosSQL =
+    "SELECT c.id_comentario, c.conteudo, c.data_criacao, u.nome, u.url_foto, c.fk_comentario_pai, COALESCE(SUM(i.tipo = 'like'), 0) as positivas, COALESCE(SUM(i.tipo = 'dislike'), 0) as negativas FROM comentario c JOIN usuario u ON u.id_usuario = c.fk_autor LEFT JOIN interacao i ON i.fk_comentario = c.id_comentario WHERE c.fk_postagem = ? GROUP BY c.id_comentario ORDER BY c.data_criacao";
+
   try {
     const [resultAcharPostagens] = await pool.query(acharPostagensSQL);
 
     if (!resultAcharPostagens)
       return res.status(401).send("Erro ao tentar achar as postagens");
+
+    await Promise.all(
+      resultAcharPostagens.map(async (postagem) => {
+        const [[positivas]] = await pool.query(acharAvaliacoesPositivasSQL, [
+          postagem.id_postagem,
+        ]);
+        const [[negativas]] = await pool.query(acharAvaliacoesNegativasSQL, [
+          postagem.id_postagem,
+        ]);
+
+        postagem.positivas = positivas.positivas;
+        postagem.negativas = negativas.negativas;
+
+        const [resultAcharComentarios] = await pool.query(acharComentariosSQL, [
+          postagem.id_postagem,
+        ]);
+
+        postagem.comentarios = montarComentariosAninhados(
+          resultAcharComentarios
+        );
+      })
+    );
 
     return res.status(200).send(resultAcharPostagens);
   } catch (error) {
