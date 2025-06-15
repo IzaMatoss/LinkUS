@@ -1,10 +1,9 @@
-import { createRoot } from "react-dom/client";
-import { UsuariosProvider } from "./components/providers/UsuariosProvider.jsx";
+import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import App from "./components/App.jsx";
-import "./css/style.css";
+import { UsuariosProvider } from "./components/providers/UsuariosProvider.jsx";
 
-createRoot(document.getElementById("root")).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <UsuariosProvider>
     <Router>
       <Routes>
