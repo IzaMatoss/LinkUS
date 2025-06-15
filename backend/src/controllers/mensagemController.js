@@ -79,12 +79,12 @@ export async function atualizarStatusMensagens(req, res) {
 export async function listarConversasUsuario(req, res) {
   const { email } = req.params;
   const listarConversasUsuarioSQL =
-    "SELECT m.texto, m.data_envio, m.status, u.nome from mensagem m join usuario u on u.id_usuario = m.fk_remetente or u.id_usuario = m.fk_destinatario where u.email = ? order by m.data_envio desc";
+    "SELECT m.texto, m.data_envio, m.status, IF(u1.email = ?, u2.nome, u1.nome), IF(u1.email = ?, u2.url_foto, u1.url_foto) FROM mensagem m JOIN usuario u1 ON u1.id_usuario = m.fk_remetente JOIN usuario u2 ON u2.id_usuario = m.fk_destinatario WHERE u1.email = ? OR u2.email = ? ORDER BY m.data_envio DESC";
   if (!email) return res.status(400).send("informe todos os campos");
   try {
     const [resultListarConversasUsuarios] = await pool.query(
       listarConversasUsuarioSQL,
-      [email]
+      [email, email, email, email]
     );
     if (!resultListarConversasUsuarios)
       return res

@@ -1,0 +1,144 @@
+#postagens {
+  margin-top: 24px;
+}
+
+#postagens .conteudo {
+  background-color: var(--c1);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+#postagens .interacao {
+  cursor: pointer;
+}
+
+#postagens #novo-post {
+  gap: 24px;
+  display: flex;
+  position: relative;
+  align-items: center;
+  gap: 40px;
+}
+
+#postagens #novo-post input {
+  background-color: var(--c2);
+  border-radius: 32px;
+  border: 2px solid var(--c4);
+  width: 80%;
+  height: 3rem;
+  padding-left: 24px;
+  font: 400 1rem/1.3 "Poppins";
+}
+
+#postagens #novo-post input + img {
+  position: absolute;
+  right: 7%;
+  cursor: pointer;
+}
+
+#postagens > ul {
+  margin-top: 32px;
+}
+
+#postagens > ul > li {
+  margin-bottom: 24px;
+}
+
+#postagens #post {
+  display: flex;
+  gap: 20px;
+}
+
+#postagens #post div {
+  display: flex;
+  flex-direction: column;
+}
+
+#imagem-post {
+  max-width: 800px;
+  max-height: 300px;
+}
+
+#postagens #post #info p {
+  font: 500 0.9rem/1.4 "Lato";
+}
+
+#postagens > ul > li > p {
+  margin: 12px 0px;
+  font: 400 1.2rem/1.2 "Poppins";
+}
+
+#imagem-post,
+#video-post {
+  width: 100%;
+}
+
+#conteudo-post ul {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 40px;
+}
+
+#conteudo-post li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 300 1.5rem/1.2 "Poppins";
+}
+
+#conteudo-post #novo-comentario {
+  align-self: self-end;
+  width: 500px;
+}
+
+#conteudo-post input {
+  border: var(--c3);
+  margin-left: 72px;
+  align-self: flex-end;
+  font: 400 0.8rem/1.3 "Poppins";
+  width: 80%;
+  padding: 12px 0px 12px 20px;
+  border-radius: 32px;
+}
+
+#conteudo-post ul::after {
+  display: block;
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background-color: var(--c4);
+  bottom: -20px;
+}
+
+#conteudo-post #comentario {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+#conteudo-post #comentario > img {
+  width: 38px;
+  height: 38px;
+  margin-top: 8px;
+}
+
+#conteudo-post #comentario div {
+  background-color: var(--c2);
+  border-radius: 24px;
+  min-width: 400px;
+  padding: 12px 16px;
+}
+
+#conteudo-post #comentario div > p {
+  font: 400 1rem/1.3 "Lato";
+}
+
+#conteudo-post #comentario div div {
+  display: flex;
+  gap: 16px;
+}
+#conteudo-post #comentario div div p {
+  font-size: 1rem;
+}

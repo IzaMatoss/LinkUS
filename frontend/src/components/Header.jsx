@@ -1,7 +1,8 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import "../css/header.css";
 
-function Header({ tipo }) {
+function Header({ tipo, setTermo }) {
   if (tipo === "pagina-inicial" || tipo === "cadastro")
     return (
       <header>
@@ -12,8 +13,8 @@ function Header({ tipo }) {
           <Link to="/">
             <p>Contato</p>
           </Link>
-          <Link to={tipo === "entrar" ? "/cadastro" : "/entrar"}>
-            <p>{tipo === "entrar" ? "Criar conta" : "Entrar"}</p>
+          <Link to={tipo !== "pagina-inicial" ? "/cadastro" : "/entrar"}>
+            <p>{tipo !== "pagina-inicial" ? "Criar conta" : "Entrar"}</p>
           </Link>
         </div>
       </header>
@@ -25,7 +26,11 @@ function Header({ tipo }) {
         <img src="./icons/logo.svg" alt="LinkUS logo" />
       </Link>
       <div id="input-header">
-        <input type="text" placeholder="Pesquise algo" />
+        <input
+          type="text"
+          placeholder="use # para interesses @ para pessoas"
+          onChange={(e) => setTermo(e.target.value)}
+        />
         <img src="./icons/pesquisa.svg" alt="Ícone de pesquisa" />
       </div>
       <div>

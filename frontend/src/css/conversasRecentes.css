@@ -1,0 +1,22 @@
+#conversas {
+  margin: 24px 0px 0pc 28px;
+}
+
+#conversas ul {
+  margin: 12px 0px 0px 16px;
+}
+
+#conversas li {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+#conversas li img {
+  width: 40px;
+  height: 40px;
+}
+
+#conversas li p {
+  font: 500 1.4rem/1.2 "Lato";
+}

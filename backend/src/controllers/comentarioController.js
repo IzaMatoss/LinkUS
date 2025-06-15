@@ -49,7 +49,7 @@ export async function criarComentarioPostagem(req, res) {
     if (!resultCriarComentarioPostagem)
       return res.status(400).send("Erro ao tentar comentar na postagem");
 
-    return res.status(200).send("Comentário adicionado a postagem com sucesso");
+    return res.status(201).send("Comentário adicionado a postagem com sucesso");
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor");
