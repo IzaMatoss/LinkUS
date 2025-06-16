@@ -90,7 +90,7 @@ export async function acharPostagens(req, res) {
     if (!resultAcharPostagens)
       return res.status(401).send("Erro ao tentar achar as postagens");
 
-    await Promise.all(
+    const postagensComInfo = await Promise.all(
       resultAcharPostagens.map(async (postagem) => {
         const [[positivas]] = await pool.query(acharAvaliacoesPositivasSQL, [
           postagem.id_postagem,
@@ -109,10 +109,12 @@ export async function acharPostagens(req, res) {
         postagem.comentarios = montarComentariosAninhados(
           resultAcharComentarios
         );
+
+        return postagem;
       })
     );
 
-    return res.status(200).send(resultAcharPostagens);
+    return res.status(200).send(postagensComInfo);
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor");

@@ -110,6 +110,9 @@ export function PostagensProvider({ children }) {
                 if (resInteracao.status === 200) {
                   const json = await resInteracao.json();
                   post.interacao = json.tipo;
+                } else {
+                  console.error("Erro " + (await resInteracao.text()));
+                  return;
                 }
 
                 if (Array.isArray(post.comentarios)) {

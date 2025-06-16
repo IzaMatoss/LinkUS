@@ -12,7 +12,8 @@ export function AutenticadorProvider({ children }) {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        if (!decoded.exp < Date.now() / 1000) setUsuario(decoded);
+        if (decoded.exp > Date.now() / 1000) setUsuario(decoded);
+        else logout();
       } catch (e) {
         console.error("Token inválido:", e);
         logout();
@@ -36,6 +37,7 @@ export function AutenticadorProvider({ children }) {
       setUsuario(jwtDecode(data.token));
       return true;
     } else {
+      console.error("Erro ao logar o usuário: " + (await result.text()));
       return false;
     }
   }

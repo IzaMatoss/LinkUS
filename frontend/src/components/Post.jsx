@@ -14,7 +14,7 @@ function Post() {
   const dados = useLocation().state;
   const { acharGruposPorUsuario } = useGrupos();
   const { acharMensagensPorUsuario } = useMensagens();
-  const { login, usuario } = useAutenticador();
+  const { login, usuario, token } = useAutenticador();
   const [termo, setTermo] = useState(null);
   const { acharUsuarioInfo, setAcharUsuarioInfo } = useState(true);
   const [jaTentouLogar, setJaTentouLogar] = useState(false);
@@ -32,7 +32,7 @@ function Post() {
     }
 
     logar();
-  }, [login, usuario, dados, navigate, jaTentouLogar]);
+  }, [login, token, usuario, dados, navigate, jaTentouLogar]);
 
   useEffect(() => {
     if (usuario?.nome && acharUsuarioInfo) {

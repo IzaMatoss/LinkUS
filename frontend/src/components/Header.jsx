@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "../css/header.css";
 import { useAutenticador } from "./providers/useAutenticador";
+import Loading from "./Loading.jsx";
 
 function Header({ tipo, setTermo }) {
   const { usuario } = useAutenticador();
@@ -22,6 +23,8 @@ function Header({ tipo, setTermo }) {
         </div>
       </header>
     );
+
+  if (!usuario) return <Loading />;
 
   return (
     <header>
