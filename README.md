@@ -54,21 +54,15 @@ Aplicação web para compartilhamento de interesses literários, onde os usuári
 - Garantir segurança no armazenamento de senhas (hashing)
 - Otimização das consultas para desempenho
 
-### Emily — Front-end (JavaScript)
+### Izabel e Lara — Front-end (JavaScript)
 - Desenvolvimento da interface de usuário responsiva e intuitiva
-- Telas de cadastro, login e perfil de usuário
 - Visualização e criação de postagens e comentários
 - Integração de interações (curtidas, avaliações, respostas)
 - Interface para criação e participação em grupos
+
+### Emily — Front-end e Figma 
+- Criação do modelo figma
 - Navegação e experiência do usuário (UX)
-
-### Izabel e Lara — Back-end (JavaScript)
-- Implementação da API REST para comunicação com o front-end
-- Autenticação e autorização de usuários
-- Lógica de negócio para cadastro, conexões, postagens, comentários e grupos
-- Controle de permissões (ex: somente administradores podem apagar mensagens)
-- Validação de dados recebidos
-- Integração com o banco de dados (via Gabriel)
-- Tratamento de erros e segurança da aplicação
-
+- Página inicial
+- Telas de cadastro, login e perfil de usuário
 ---
