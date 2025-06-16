@@ -1,68 +1,80 @@
-# LinkUS
+# 📚 LinkUS
 
-Aplicação web para compartilhamento de interesses literários, onde os usuários podem conversar sobre livros, criar conexões, postar conteúdos e participar de grupos temáticos. — 
----
-
-## Tecnologias Utilizadas
-
-- Linguagem: JavaScript
-- Banco de Dados: MySQL
+**LinkUS** é uma aplicação web voltada ao compartilhamento de interesses literários. Usuários podem se conectar, conversar sobre livros, criar postagens, interagir com outros leitores e participar de grupos temáticos.
 
 ---
 
-## Funcionalidades Principais
+## 🚀 Tecnologias Utilizadas
 
-### 1. Cadastro de Usuários
-- Registro com:
-  - Nome de usuário (único)
-  - E-mail
-  - Data de nascimento
-  - Foto de perfil
-- Autenticação segura via e-mail e senha, com armazenamento seguro das senhas
-- Conexões entre usuários por solicitações e aceitações
-- Perfis e postagens públicos (não há perfis privados)
-
-### 2. Postagens e Interações
-- Criação de postagens públicas com:
-  - Data de criação
-  - Tipo de conteúdo (texto, imagem, vídeo — com ou sem texto)
-  - Conteúdo
-- Interações:
-  - Avaliações positivas ou negativas nas postagens
-  - Comentários em postagens
-  - Respostas a comentários (comentários aninhados)
-  - Avaliações em comentários
-
-### 3. Grupos e Comunidades
-- Criação e participação em grupos temáticos com:
-  - Nome único
-  - Descrição
-  - Data de criação
-  - Lista de membros com funções: membro ou administrador
-- Regras específicas:
-  - Apenas administradores podem apagar mensagens de outros membros
-  - Discussões públicas dentro dos grupos
+- **Linguagem:** JavaScript (Node.js + React)
+- **Banco de Dados:** MySQL
+- **Gerenciamento de Containers:** Docker
 
 ---
 
-## Distribuição de Atividades
+## 🛠️ Como rodar o projeto
 
-### Gabriel — Integração do Banco de Dados (MySQL)
-- Modelagem do banco de dados para usuários, postagens, comentários, avaliações, conexões e grupos
-- Criação das tabelas e relacionamentos
-- Implementação das queries para CRUD (Create, Read, Update, Delete)
-- Garantir segurança no armazenamento de senhas (hashing)
-- Otimização das consultas para desempenho
+1. **Pré-requisitos:**
+   - Docker Desktop instalado
+   - Node.js e npm instalados
+   - Uma IDE de sua preferência (ex: VS Code)
 
-### Izabel e Lara — Front-end (JavaScript)
-- Desenvolvimento da interface de usuário responsiva e intuitiva
-- Visualização e criação de postagens e comentários
-- Integração de interações (curtidas, avaliações, respostas)
-- Interface para criação e participação em grupos
+2. **Backend**
+   ```bash
+   cd backend
+   docker compose up -d  # Inicia o banco de dados
+   npm install           # Instala as dependências
+   npm run dev           # Inicia o servidor
 
-### Emily — Front-end e Figma 
-- Criação do modelo figma
-- Navegação e experiência do usuário (UX)
-- Página inicial
-- Telas de cadastro, login e perfil de usuário
----
+3. **Frontend**
+   ```bash
+   cd frontend
+   npm install           # Instala as dependências
+   npm run dev           # Inicia o frontend
+
+4. **Acessar a aplicação** <br/>
+   http://localhost:5173
+
+## ✨ Funcionalidades Principais
+1. 👤 Cadastro e Conexões de Usuário
+    - Registro com nome de usuário (único), e-mail, data de nascimento e foto de perfil
+    - Autenticação segura com e-mail e senha (senhas criptografadas)
+    - Conexões entre usuários por meio de solicitações e aceitações
+    - Perfis públicos com exibição de postagens
+
+2. 📝 Postagens e Interações
+   - Criação de postagens com:
+      Texto, imagem e/ou vídeo
+      Data de criação
+      Tipo de conteúdo
+
+   - Interações disponíveis:
+     Curtidas positivas e negativas
+     Comentários e respostas (aninhados)
+     Avaliação de comentários
+
+3. 👥 Grupos e Comunidades
+    - Criação de grupos temáticos com:
+      Nome e descrição únicos
+      Lista de membros (administradores ou membros comuns)
+  
+    - Regras de moderação:
+      Apenas administradores podem remover mensagens de outros usuários
+      Discussões públicas dentro dos grupos
+
+4. 👨‍💻 Distribuição de Atividades
+    - Gabriel — Back-end e Banco de Dados
+        - Modelagem e implementação do banco (usuários, postagens, comentários, conexões e grupos)
+        - Criação e manutenção de queries SQL (CRUD)
+        - Segurança: armazenamento de senhas com hashing
+        - Otimização de desempenho nas consultas
+    
+    - Izabel e Lara — Front-end
+        - Desenvolvimento da interface web (React)
+        - Funcionalidades de postagens, comentários e interações
+        - Criação e gerenciamento de grupos
+    
+    - Emily — Front-end e Design (Figma)
+        - Criação do protótipo visual no Figma
+        - Foco em experiência do usuário (UX) e navegação fluida
+        - Telas principais: home, login, cadastro e perfil
