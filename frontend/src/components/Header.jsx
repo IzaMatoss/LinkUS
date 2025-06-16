@@ -1,8 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "../css/header.css";
+import { useAutenticador } from "./providers/useAutenticador";
 
 function Header({ tipo, setTermo }) {
+  const { usuario } = useAutenticador();
+
   if (tipo === "pagina-inicial" || tipo === "cadastro")
     return (
       <header>
@@ -34,11 +37,15 @@ function Header({ tipo, setTermo }) {
         <img src="./icons/pesquisa.svg" alt="Ícone de pesquisa" />
       </div>
       <div>
-        <Link>
+        <Link to="/mensagem">
           <img src="./icons/conversa.svg" alt="Ícone de conversas" />
         </Link>
-        <Link>
-          <img src="./icons/perfil.svg" alt="Ícone de perfil" />
+        <Link to="/perfil">
+          <img
+            id="foto-perfil"
+            src={usuario.url_foto || "./icons/perfil.svg"}
+            alt="Ícone de perfil"
+          />
         </Link>
       </div>
     </header>

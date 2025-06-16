@@ -53,20 +53,20 @@ export async function criarGrupo(req, res) {
 }
 
 export async function participarGrupo(req, res) {
-  const { nome, email } = req.body;
-  const acharUsuarioPorEmailSQL =
-    "SELECT id_usuario from usuario where email = ?";
+  const { nomeGrupo, nomeUsuario } = req.body;
+  const acharUsuarioPorNomeSQL =
+    "SELECT id_usuario from usuario where nome = ?";
   const participarGrupoSQL =
     "INSERT INTO participante(fk_grupo, fk_participante) values(?, ?)";
 
   try {
-    const [resultAcharUsuario] = await pool.query(acharUsuarioPorEmailSQL, [
-      email,
+    const [resultAcharUsuario] = await pool.query(acharUsuarioPorNomeSQL, [
+      nomeUsuario,
     ]);
     if (!resultAcharUsuario[0])
       return res.status(404).send("Usuário não encontrado");
 
-    const resultAcharGrupoPorNome = await acharGrupoPorNome(nome);
+    const resultAcharGrupoPorNome = await acharGrupoPorNome(nomeGrupo);
     if (!resultAcharGrupoPorNome[0])
       return res.status(404).send("Grupo não encontrado");
 

@@ -14,7 +14,7 @@ export function PostagensProvider({ children }) {
     setPostagensUsuarioLoading(true);
     try {
       const result = await fetch(
-        `http://localhost:5000/grupo/acharPostagens/${nome}`,
+        `http://localhost:5000/postagem/acharPostagensUsuario/${nome}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -22,9 +22,48 @@ export function PostagensProvider({ children }) {
         }
       );
 
-      if (result.status !== 200)
+      if (result.status !== 200) {
         console.log("Erro de requisição: " + (await result.text()));
-      else setPostagensUsuario(await result.json());
+        return;
+      }
+
+      let posts = await result.json();
+
+      if (usuario) {
+        const novosPosts = await Promise.all(
+          posts.map(async (post) => {
+            try {
+              const resInteracao = await fetch(
+                `http://localhost:5000/interacao/temInteracaoPost`,
+                {
+                  method: "POST",
+                  body: JSON.stringify({
+                    id_postagem: post.id_postagem,
+                    email: usuario.email,
+                  }),
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+
+              if (resInteracao.status === 200) {
+                const json = await resInteracao.json();
+                post.interacao = json.tipo;
+              }
+            } catch (err) {
+              console.error("Erro ao buscar interação:", err);
+            }
+
+            return post;
+          })
+        );
+
+        posts = novosPosts;
+      }
+
+      setPostagensUsuario(posts);
     } catch (error) {
       console.error("Erro de requisição" + error);
     } finally {

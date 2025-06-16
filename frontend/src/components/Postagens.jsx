@@ -5,29 +5,123 @@ import { useAutenticador } from "./providers/useAutenticador";
 import { usePostagens } from "./providers/usePostagens";
 import { createClient } from "@supabase/supabase-js";
 import "../css/postagens.css";
+import Loading from "./Loading";
+import { useConexao } from "./providers/useConexao";
 
 function Postagens({ termo }) {
   const { usuario, token } = useAutenticador();
   const { postagens, setReloadPostagens } = usePostagens();
   const [postagensFiltradas, setPostagensFiltradas] = useState(postagens);
   const [midia, setMidia] = useState(null);
+  const [solicitacao, setSolicitacao] = useState(null);
+  const { conexoesUsuario, conexoesUsuarioLoading, acharConexoesPorUsuario } =
+    useConexao();
 
-  useEffect(
-    () =>
-      setPostagensFiltradas(
-        postagens.filter((postagem) =>
-          postagem.texto
-            ?.toLowerCase()
-            .includes(termo ? termo.toLowerCase() : "")
-        )
-      ),
-    [termo, postagens, setPostagensFiltradas]
-  );
+  async function enviarSolicitacao(destinatario) {
+    const data = {};
+    data.remetente = usuario.nome;
+    data.destinatario = destinatario;
+
+    try {
+      const result = await fetch(
+        "http://localhost:5000/conexao/enviarSolicitacao",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (result.status != 200)
+        console.error("Erro ao mandar a solicitação: " + (await result.text()));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function interagirPostagem(postagem, tipo) {
+    if (!postagem.interacao) {
+      const data = {
+        id_postagem: postagem.id_postagem,
+        nomeAutor: usuario.nome,
+        tipo,
+      };
+
+      try {
+        const result = await fetch(
+          "http://localhost:5000/interacao/criarInteracao",
+          {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (result.status !== 200) {
+          console.error(
+            "Erro ao tentar interagir na postagem:",
+            await result.text()
+          );
+          return;
+        }
+
+        setReloadPostagens();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (postagens) {
+      if (!termo || (termo.charAt(0) != "#" && termo.charAt(0) != "@"))
+        setPostagensFiltradas(
+          postagens.filter((postagem) =>
+            postagem.texto
+              ?.toLowerCase()
+              .includes(termo ? termo.toLowerCase() : "")
+          )
+        );
+      else if (termo.charAt(0) == "@") {
+        setPostagensFiltradas(
+          postagens.filter((postagem) =>
+            postagem.nome
+              ?.toLowerCase()
+              .includes(termo ? termo.substring(1).toLowerCase() : "")
+          )
+        );
+      } else {
+        setPostagensFiltradas(
+          postagens.filter((postagem) => {
+            console.log(postagem);
+            return postagem.interesses.some((interesse) =>
+              interesse
+                .toLowerCase()
+                .includes(termo ? termo.substring(1).toLowerCase() : "")
+            );
+          })
+        );
+      }
+    }
+  }, [termo, postagens, setPostagensFiltradas]);
+
+  useEffect(() => {
+    if (usuario) acharConexoesPorUsuario(usuario.nome);
+  }, [usuario]);
+
+  if (!postagens || conexoesUsuarioLoading) return <Loading />;
 
   function Comentario({ comentario, post }) {
     return (
       <div id="comentario">
         <img
+          id="foto-perfil"
           src={comentario.url_foto ? comentario.url_foto : "./icons/padrao.svg"}
           alt="Foto do usuário"
         />
@@ -134,10 +228,11 @@ function Postagens({ termo }) {
   }
 
   return (
-    <div id="postagens">
+    <div id="postagens" onClick={() => setSolicitacao(false)}>
       <div id="novo-post" className="conteudo">
         <img
-          src={usuario.url_foto ? usuario.url_foto : "./icons/padrao.svg"}
+          id="foto-perfil"
+          src={usuario?.url_foto ?? "./icons/padrao.svg"}
           alt="Foto do usuário"
         />
         <input
@@ -219,173 +314,143 @@ function Postagens({ termo }) {
         </div>
       </div>
       <ul>
-        {postagensFiltradas.map((postagem) => (
-          <li
-            key={postagem.id_postagem}
-            className="conteudo"
-            id="conteudo-post"
-          >
-            <div id="post">
-              <img
-                src={
-                  postagem.url_foto ? postagem.url_foto : "./icons/padrao.svg"
-                }
-                alt={`Foto do usuário ${postagem.nome}`}
-              />
-              <div id="info">
-                <h2>{postagem.nome}</h2>
-                <p>
-                  {formatDistanceToNow(new Date(postagem.data_criacao), {
-                    addSuffix: true,
-                    locale: ptBR,
-                  })}
-                </p>
+        {postagensFiltradas &&
+          postagensFiltradas.map((postagem) => (
+            <li
+              key={postagem.id_postagem}
+              className="conteudo"
+              id="conteudo-post"
+            >
+              <div id="post">
+                <img
+                  id="foto-perfil"
+                  src={
+                    postagem.url_foto ? postagem.url_foto : "./icons/padrao.svg"
+                  }
+                  alt={`Foto do usuário ${postagem.nome}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (
+                      !conexoesUsuario.some(
+                        (conexao) => conexao.nome === postagem.nome
+                      ) &&
+                      usuario.nome !== postagem.nome
+                    )
+                      setSolicitacao(true);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
+                <div
+                  id="info"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSolicitacao(true);
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
+                  <h2>{postagem.nome}</h2>
+                  <p>
+                    {formatDistanceToNow(new Date(postagem.data_criacao), {
+                      addSuffix: true,
+                      locale: ptBR,
+                    })}
+                  </p>
+                </div>
+                {solicitacao && (
+                  <div
+                    id="modal-solicitacao"
+                    onClick={() => enviarSolicitacao(postagem.nome)}
+                  >
+                    <img
+                      src="./icons/enviarSolicitacao.svg"
+                      alt="Ícone de enviar solicitação"
+                    />
+                    <p>enviar solicitação</p>
+                  </div>
+                )}
               </div>
-            </div>
-            <p>{postagem.texto}</p>
-            {postagem.tipo_conteudo === "imagem" && (
-              <img src={postagem.url_midia} id="imagem-post" />
-            )}
+              <p>{postagem.texto}</p>
+              {postagem.tipo_conteudo === "imagem" && (
+                <img src={postagem.url_midia} id="imagem-post" />
+              )}
 
-            {postagem.tipo_conteudo === "video" && (
-              <video controls width="500" id="video-post">
-                <source src={postagem.url_midia} type="video/mp4" />
-              </video>
-            )}
-            <ul>
-              <li>
-                <img
-                  onClick={async () => {
-                    if (!postagem.interacao) {
-                      const data = {};
-                      data.id_postagem = postagem.id_postagem;
-                      data.nomeAutor = usuario.nome;
-                      data.tipo = "like";
+              {postagem.tipo_conteudo === "video" && (
+                <video controls width="500" id="video-post">
+                  <source src={postagem.url_midia} type="video/mp4" />
+                </video>
+              )}
+              <ul>
+                <li>
+                  <img
+                    onClick={() => interagirPostagem(postagem, "like")}
+                    className="interacao"
+                    src={
+                      postagem.interacao && postagem.interacao === "like"
+                        ? "./icons/like-dado.svg"
+                        : "./icons/like.svg"
+                    }
+                    alt="Ícone de like"
+                  />
+                  <p>{postagem.positivas}</p>
+                </li>
+                <li>
+                  <img
+                    onClick={() => interagirPostagem(postagem, "dislike")}
+                    className="interacao"
+                    src={
+                      postagem.interacao && postagem.interacao === "dislike"
+                        ? "./icons/dislike-dado.svg"
+                        : "./icons/dislike.svg"
+                    }
+                    alt="Ícone de dislike"
+                  />
+                  <p>{postagem.negativas}</p>
+                </li>
+                <li id="novo-comentario">
+                  <input
+                    type="text"
+                    placeholder="comente algo"
+                    onKeyUp={async (e) => {
+                      if (e.key === "Enter" && e.target.value) {
+                        const data = {};
+                        data.id_postagem = postagem.id_postagem;
+                        data.nomeAutor = usuario.nome;
+                        data.conteudo = e.target.value;
 
-                      try {
-                        const result = await fetch(
-                          "http://localhost:5000/interacao/criarInteracao",
-                          {
-                            method: "POST",
-                            body: JSON.stringify(data),
-                            headers: {
-                              "Content-Type": "application/json",
-                              Authorization: `Bearer ${token}`,
-                            },
-                          }
-                        );
-
-                        if (result.status != 200)
-                          console.error(
-                            "Erro ao tentar interagir na postagem: ",
-                            await result.text()
+                        try {
+                          const result = await fetch(
+                            "http://localhost:5000/comentario/criarComentarioPostagem",
+                            {
+                              method: "POST",
+                              body: JSON.stringify(data),
+                              headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`,
+                              },
+                            }
                           );
 
-                        setReloadPostagens();
-                      } catch (error) {
-                        console.error(error);
+                          if (result.status != 201)
+                            console.error(
+                              "Erro ao criar comentário na postagem: " +
+                                (await result.text())
+                            );
+                          else setReloadPostagens((val) => !val);
+                          e.target.value = "";
+                        } catch (error) {
+                          console.error(error);
+                        }
                       }
-                    }
-                  }}
-                  className="interacao"
-                  src={
-                    postagem.interacao && postagem.interacao === "like"
-                      ? "./icons/like-dado.svg"
-                      : "./icons/like.svg"
-                  }
-                  alt="Ícone de like"
-                />
-                <p>{postagem.positivas}</p>
-              </li>
-              <li>
-                <img
-                  onClick={async () => {
-                    if (!postagem.interacao) {
-                      const data = {};
-                      data.id_postagem = postagem.id_postagem;
-                      data.nomeAutor = usuario.nome;
-                      data.tipo = "dislike";
-
-                      try {
-                        const result = await fetch(
-                          "http://localhost:5000/interacao/criarInteracao",
-                          {
-                            method: "POST",
-                            body: JSON.stringify(data),
-                            headers: {
-                              "Content-Type": "application/json",
-                              Authorization: `Bearer ${token}`,
-                            },
-                          }
-                        );
-
-                        if (result.status != 200)
-                          console.error(
-                            "Erro ao tentar interagir na postagem: ",
-                            await result.text()
-                          );
-
-                        setReloadPostagens();
-                      } catch (error) {
-                        console.error(error);
-                      }
-                    }
-                  }}
-                  className="interacao"
-                  src={
-                    postagem.interacao && postagem.interacao === "dislike"
-                      ? "./icons/dislike-dado.svg"
-                      : "./icons/dislike.svg"
-                  }
-                  alt="Ícone de dislike"
-                />
-                <p>{postagem.negativas}</p>
-              </li>
-              <li id="novo-comentario">
-                <input
-                  type="text"
-                  placeholder="comente algo"
-                  onKeyUp={async (e) => {
-                    if (e.key === "Enter" && e.target.value) {
-                      const data = {};
-                      data.id_postagem = postagem.id_postagem;
-                      data.nomeAutor = usuario.nome;
-                      data.conteudo = e.target.value;
-
-                      try {
-                        const result = await fetch(
-                          "http://localhost:5000/comentario/criarComentarioPostagem",
-                          {
-                            method: "POST",
-                            body: JSON.stringify(data),
-                            headers: {
-                              "Content-Type": "application/json",
-                              Authorization: `Bearer ${token}`,
-                            },
-                          }
-                        );
-
-                        if (result.status != 201)
-                          console.error(
-                            "Erro ao criar comentário na postagem: " +
-                              (await result.text())
-                          );
-                        else setReloadPostagens((val) => !val);
-                        e.target.value = "";
-                      } catch (error) {
-                        console.error(error);
-                      }
-                    }
-                  }}
-                />
-              </li>
-            </ul>
-            <ListarComentarios
-              comentarios={postagem.comentarios}
-              post={postagem}
-            />
-          </li>
-        ))}
+                    }}
+                  />
+                </li>
+              </ul>
+              <ListarComentarios
+                comentarios={postagem.comentarios}
+                post={postagem}
+              />
+            </li>
+          ))}
       </ul>
     </div>
   );

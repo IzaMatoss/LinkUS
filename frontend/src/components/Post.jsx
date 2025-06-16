@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAutenticador } from "./providers/useAutenticador";
 import { useGrupos } from "./providers/useGrupos";
-import { usePostagens } from "./providers/usePostagens";
 import { useMensagens } from "./providers/useMensagens";
-import Loading from "./Loading";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Postagens from "./Postagens";
@@ -14,39 +12,35 @@ import "../css/post.css";
 function Post() {
   const navigate = useNavigate();
   const dados = useLocation().state;
-  const { gruposUsuarioLoading, acharGruposPorUsuario } = useGrupos();
-  const { postagensLoading } = usePostagens();
-  const { mensagensUsuarioLoading, acharMensagensPorUsuario } = useMensagens();
+  const { acharGruposPorUsuario } = useGrupos();
+  const { acharMensagensPorUsuario } = useMensagens();
   const { login, usuario } = useAutenticador();
   const [termo, setTermo] = useState(null);
+  const { acharUsuarioInfo, setAcharUsuarioInfo } = useState(true);
+  const [jaTentouLogar, setJaTentouLogar] = useState(false);
 
   useEffect(() => {
     async function logar() {
-      if (!usuario)
+      if (!usuario && !jaTentouLogar)
         try {
           if (!(await login(dados.email, dados.senha))) navigate("/");
         } catch {
           navigate("/");
+        } finally {
+          setJaTentouLogar(true);
         }
     }
 
     logar();
-  }, [login, dados, navigate]);
+  }, [login, usuario, dados, navigate, jaTentouLogar]);
 
   useEffect(() => {
-    if (usuario) {
+    if (usuario?.nome && acharUsuarioInfo) {
       acharGruposPorUsuario(usuario.nome);
       acharMensagensPorUsuario(usuario.email);
+      setAcharUsuarioInfo(false);
     }
-  }, [usuario]);
-
-  if (
-    gruposUsuarioLoading ||
-    postagensLoading ||
-    mensagensUsuarioLoading ||
-    !usuario
-  )
-    return <Loading />;
+  }, [usuario, acharUsuarioInfo]);
 
   return (
     <article aria-label="postagens">

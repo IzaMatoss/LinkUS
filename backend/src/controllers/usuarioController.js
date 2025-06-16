@@ -93,13 +93,64 @@ export async function acharUsuariosPorInteresse(req, res) {
 
 export async function acharUsuarios(req, res) {
   const acharUsuariosSQL =
-    "SELECT u.nome, u.url_foto, u.data_nascimento from usuario u left join usuario_interesse ui on u.id_usuario = ui.fk_usuario left join interesse i on i.id_interesse = ui.fk_interesse";
+    "SELECT u.nome, u.url_foto, u.data_nascimento, JSON_ARRAYAGG(i.nome) as interesses from usuario u left join usuario_interesse ui on u.id_usuario = ui.fk_usuario left join interesse i on i.id_interesse = ui.fk_interesse group by u.nome";
 
   try {
     const [resultAcharUsuarios] = await pool.query(acharUsuariosSQL);
     if (!resultAcharUsuarios)
       return res.status(404).send("Nenhum usuário foi encontrado");
     return res.status(200).send(resultAcharUsuarios);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Erro interno do servidor");
+  }
+}
+
+export async function atualizarUsuario(req, res) {
+  const usuario = req.body;
+
+  const atualizarUsuarioSQL = "UPDATE usuario set url_foto = ? where email = ?";
+  const acharUsuarioSQL = "SELECT id_usuario from usuario where email = ?";
+  const apagarUsuarioInteressesSQL =
+    "DELETE ui.* from usuario_interesse ui join usuario u on u.id_usuario = ui.fk_usuario where u.email = ?";
+  const interesseJaExisteSQL = "SELECT * from interesse where nome = ?";
+  const criarInteresseSQL = "INSERT into interesse(nome) values(?)";
+  const criarUsuarioInteresseSQL =
+    "INSERT into usuario_interesse(fk_usuario, fk_interesse) values (?, ?)";
+
+  try {
+    const [resultAcharUsuario] = await pool.query(acharUsuarioSQL, [
+      usuario.email,
+    ]);
+
+    if (!resultAcharUsuario[0])
+      return res.status(404).send("Usuário não encontrado");
+
+    await pool.query(atualizarUsuarioSQL, [usuario.url_foto, usuario.email]);
+    await pool.query(apagarUsuarioInteressesSQL, [usuario.email]);
+
+    for (const interesse of usuario.interesses) {
+      const [resultInteresseJaExiste] = await pool.query(interesseJaExisteSQL, [
+        interesse,
+      ]);
+      if (!resultInteresseJaExiste[0]) {
+        await pool.query(criarInteresseSQL, [interesse]);
+        const [resultInteresseCriado] = await pool.query(interesseJaExisteSQL, [
+          interesse,
+        ]);
+        await pool.query(criarUsuarioInteresseSQL, [
+          resultAcharUsuario[0].id_usuario,
+          resultInteresseCriado[0].id_interesse,
+        ]);
+      } else {
+        await pool.query(criarUsuarioInteresseSQL, [
+          resultAcharUsuario[0].id_usuario,
+          resultInteresseJaExiste[0].id_interesse,
+        ]);
+      }
+    }
+
+    return res.status(200).send("Usuário foi atualizado");
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor");

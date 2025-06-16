@@ -1,11 +1,24 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AutenticadorContext } from "./useAutenticador";
 import { jwtDecode } from "jwt-decode";
 
 export function AutenticadorProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [usuario, setUsuario] = useState(null);
+  const [usuarioTrigger, setUsuarioTrigger] = useState(false);
+
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        if (!decoded.exp < Date.now() / 1000) setUsuario(decoded);
+      } catch (e) {
+        console.error("Token inválido:", e);
+        logout();
+      }
+    }
+  }, [token, usuarioTrigger]);
 
   async function login(email, senha) {
     const result = await fetch("http://localhost:5000/usuario/logarUsuario", {
@@ -34,7 +47,9 @@ export function AutenticadorProvider({ children }) {
   }
 
   return (
-    <AutenticadorContext.Provider value={{ token, login, logout, usuario }}>
+    <AutenticadorContext.Provider
+      value={{ token, login, logout, usuario, setUsuarioTrigger }}
+    >
       {children}
     </AutenticadorContext.Provider>
   );
