@@ -19,20 +19,29 @@
    - Node.js e npm instalados
    - Uma IDE de sua preferência (ex: VS Code)
 
-2. **Backend**
+2. **Configuração**
+Crie um arquivo .env e dentro insira:
+   ```bash
+   PORT=5000
+   DB_HOST=127.0.0.1
+   DB_USER=root
+   DB_PASSWORD=sua_senha
+   DB_NAME=nome_do_database
+   DB_PORT=3306
+4. **Backend**
    ```bash
    cd backend
    docker compose up -d  # Inicia o banco de dados
    npm install           # Instala as dependências
    npm run dev           # Inicia o servidor
 
-3. **Frontend**
+5. **Frontend**
    ```bash
    cd frontend
    npm install           # Instala as dependências
    npm run dev           # Inicia o frontend
 
-4. **Acessar a aplicação** <br/>
+6. **Acessar a aplicação** <br/>
    http://localhost:5173
 
 ## ✨ Funcionalidades Principais
