@@ -1,5 +1,12 @@
 #mensagens-usuario {
   margin-top: 24px;
+  overflow-y: auto;
+  max-height: 78vh;
+  scrollbar-width: none;
+}
+
+#mensagens-usuario::-webkit-scrollbar {
+  display: none;
 }
 
 #conversa-atual {

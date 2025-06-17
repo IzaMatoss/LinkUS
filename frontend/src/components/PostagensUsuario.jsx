@@ -61,6 +61,7 @@ function PostagensUsuario() {
         id_postagem: postagem.id_postagem,
         nomeAutor: usuario.nome,
         tipo,
+        id_comentario: null,
       };
 
       try {
@@ -83,8 +84,63 @@ function PostagensUsuario() {
           );
           return;
         }
+
+        acharPostagensPorUsuario(usuario.nome);
       } catch (error) {
         console.error(error);
+      }
+    } else if (
+      (postagem.interacao === "like" && tipo == "like") ||
+      (postagem.interacao === "dislike" && tipo == "dislike")
+    ) {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/interacao/deletarInteracao/${postagem.id_postagem}/${usuario.nome}/nenhum`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (res.status === 200) acharPostagensPorUsuario(usuario.nome);
+        else {
+          console.error(
+            "Erro ao tentar remover interação: " + (await res.text())
+          );
+        }
+      } catch (error) {
+        console.error("Erro interno do servidor: " + error);
+      }
+    } else {
+      const data = {
+        nome: usuario.nome,
+        id_postagem: postagem.id_postagem,
+        interacao: tipo,
+        id_comentario: null,
+      };
+
+      try {
+        const res = await fetch(
+          `http://localhost:5000/interacao/atualizarInteracao`,
+          {
+            method: "PUT",
+            body: JSON.stringify(data),
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (res.status !== 200)
+          console.error(
+            "Erro ao tentar atualizar a interação" + (await res.text())
+          );
+        else acharPostagensPorUsuario(usuario.nome);
+      } catch (error) {
+        console.error("Erro interno do servidor: " + error);
       }
     }
   }
@@ -97,7 +153,7 @@ function PostagensUsuario() {
   }, [usuario]);
 
   useEffect(() => {
-    if (usuario?.interesses[0]) setNovosInteresses(usuario.interesses);
+    if (usuario?.interesses) setNovosInteresses(usuario.interesses);
   }, [usuario?.interesses]);
 
   return (

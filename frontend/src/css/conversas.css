@@ -40,31 +40,40 @@
   margin-top: 16px;
 }
 
-#mensagens-atuais {
-  margin-right: 60px;
-  margin-top: 26px;
-  position: relative;
-}
-
-#mensagens-atuais::before {
-  content: "";
-  height: 70vh;
-  width: 0.5px;
-  background-color: var(--c14);
-  position: absolute;
-  left: -28px;
-}
-
 #mensagens-atuais div {
+  margin-right: 48px;
+  margin-top: 26px;
+}
+
+#mensagens-atuais::-webkit-scrollbar {
+  display: none;
+}
+
+#mensagens-atuais div:first-child,
+#mensagens-atuais ul div {
   display: flex;
   gap: 16px;
   position: relative;
   align-items: center;
+  justify-content: space-between;
   font: 300 0.9rem /1.2 "Poppins";
 }
 
+#mensagens-atuais ul div {
+  justify-content: end;
+  color: var(--12);
+}
+
 #mensagens-atuais ul {
+  max-height: 50vh;
+  overflow-y: auto;
+  scrollbar-width: none;
   margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+#mensagens-atuais ul::-webkit-scrollbar {
+  display: none;
 }
 
 #mensagens-atuais li {
@@ -103,8 +112,11 @@
   margin-right: 60px;
 }
 
-#mensagens-atuais > div img:last-child {
+#mensagens-atuais > div:last-child img:last-child {
   cursor: pointer;
+  position: absolute;
+  right: 16px;
+  top: 10px;
 }
 
 #mensagens-atuais > div:first-child:after {
@@ -116,13 +128,14 @@
   background-color: var(--c14);
   bottom: -12px;
 }
+
 #mensagens-atuais > div:last-child {
-  position: fixed;
-  bottom: 60px;
+  margin-left: 20px;
+  position: relative;
 }
 
-#mensagens-atuais > div:last-child input,
-#mensagens-atuais > div:last-child input:focus-visible {
+#mensagens-atuais div:last-child input,
+#mensagens-atuais div:last-child input:focus-visible {
   padding: 16px 88px 16px 28px;
   outline: none;
   border: 2px solid var(--c3);
@@ -161,4 +174,8 @@
   margin-left: 160px;
   border-radius: 20px;
   background-color: var(--c2);
+}
+
+#modal-mensagem img {
+  border-radius: 24px;
 }

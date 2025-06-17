@@ -42,12 +42,16 @@ function Postagens({ termo }) {
     }
   }
 
-  async function interagirPostagem(postagem, tipo) {
-    if (!postagem.interacao) {
+  async function interagirPostagem(postagem, tipo, comentario) {
+    if (
+      (comentario && !comentario.interacao) ||
+      (!comentario && !postagem.interacao)
+    ) {
       const data = {
         id_postagem: postagem.id_postagem,
         nomeAutor: usuario.nome,
         tipo,
+        id_comentario: comentario ? comentario.id_comentario : null,
       };
 
       try {
@@ -74,6 +78,63 @@ function Postagens({ termo }) {
         setReloadPostagens();
       } catch (error) {
         console.error(error);
+      }
+    } else if (
+      (!comentario &&
+        ((postagem.interacao === "like" && tipo == "like") ||
+          (postagem.interacao === "dislike" && tipo == "dislike"))) ||
+      (comentario &&
+        ((comentario.interacao === "like" && tipo == "like") ||
+          (comentario.interacao === "dislike" && tipo == "dislike")))
+    ) {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/interacao/deletarInteracao/${postagem.id_postagem}/${usuario.nome}/${comentario ? comentario.id_comentario : "nenhum"}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (res.status === 200) setReloadPostagens((prev) => !prev);
+        else {
+          console.error(
+            "Erro ao tentar remover interação: " + (await res.text())
+          );
+        }
+      } catch (error) {
+        console.error("Erro interno do servidor: " + error);
+      }
+    } else {
+      const data = {
+        nome: usuario.nome,
+        id_postagem: postagem.id_postagem,
+        interacao: tipo,
+        id_comentario: comentario ? comentario.id_comentario : null,
+      };
+
+      try {
+        const res = await fetch(
+          `http://localhost:5000/interacao/atualizarInteracao`,
+          {
+            method: "PUT",
+            body: JSON.stringify(data),
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (res.status !== 200)
+          console.error(
+            "Erro ao tentar atualizar a interação" + (await res.text())
+          );
+        else setReloadPostagens((prev) => !prev);
+      } catch (error) {
+        console.error("Erro interno do servidor: " + error);
       }
     }
   }
@@ -134,37 +195,7 @@ function Postagens({ termo }) {
           <p>{comentario.conteudo}</p>
           <div>
             <img
-              onClick={async () => {
-                const data = {};
-                data.nomeAutor = usuario.nome;
-                data.id_postagem = post.id_postagem;
-                data.id_comentario = comentario.id_comentario;
-                data.tipo = "like";
-
-                try {
-                  const result = await fetch(
-                    "http://localhost:5000/interacao/criarInteracao",
-                    {
-                      method: "POST",
-                      body: JSON.stringify(data),
-                      headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                      },
-                    }
-                  );
-
-                  if (result.status != 200)
-                    console.error(
-                      "Erro ao tentar interagir na postagem: ",
-                      await result.text()
-                    );
-
-                  setReloadPostagens();
-                } catch (error) {
-                  console.error(error);
-                }
-              }}
+              onClick={async () => interagirPostagem(post, "like", comentario)}
               src={
                 comentario.interacao && comentario.interacao === "like"
                   ? "./icons/like-dado.svg"
@@ -175,37 +206,9 @@ function Postagens({ termo }) {
             />
             <p>{comentario.positivas}</p>
             <img
-              onClick={async () => {
-                const data = {};
-                data.nomeAutor = usuario.nome;
-                data.id_postagem = post.id_postagem;
-                data.id_comentario = comentario.id_comentario;
-                data.tipo = "dislike";
-
-                try {
-                  const result = await fetch(
-                    "http://localhost:5000/interacao/criarInteracao",
-                    {
-                      method: "POST",
-                      body: JSON.stringify(data),
-                      headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                      },
-                    }
-                  );
-
-                  if (result.status != 200)
-                    console.error(
-                      "Erro ao tentar interagir na postagem: ",
-                      await result.text()
-                    );
-
-                  setReloadPostagens();
-                } catch (error) {
-                  console.error(error);
-                }
-              }}
+              onClick={async () =>
+                interagirPostagem(post, "dislike", comentario)
+              }
               src={
                 comentario.interacao && comentario.interacao === "dislike"
                   ? "./icons/dislike-dado.svg"
@@ -241,6 +244,7 @@ function Postagens({ termo }) {
         />
         <input
           type="text"
+          id="novo-post-input"
           placeholder="Digite o que está pensando..."
           onKeyUp={async (e) => {
             if (e.key === "Enter") {
@@ -389,7 +393,7 @@ function Postagens({ termo }) {
                 <ul>
                   <li>
                     <img
-                      onClick={() => interagirPostagem(postagem, "like")}
+                      onClick={() => interagirPostagem(postagem, "like", null)}
                       className="interacao"
                       src={
                         postagem.interacao && postagem.interacao === "like"
@@ -402,7 +406,9 @@ function Postagens({ termo }) {
                   </li>
                   <li>
                     <img
-                      onClick={() => interagirPostagem(postagem, "dislike")}
+                      onClick={() =>
+                        interagirPostagem(postagem, "dislike", null)
+                      }
                       className="interacao"
                       src={
                         postagem.interacao && postagem.interacao === "dislike"
@@ -415,6 +421,7 @@ function Postagens({ termo }) {
                   </li>
                   <li id="novo-comentario">
                     <input
+                      id={postagem.id_postagem + "-comentario"}
                       type="text"
                       placeholder="comente algo"
                       onKeyUp={async (e) => {

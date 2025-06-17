@@ -114,7 +114,7 @@ export async function acharPostagens(req, res) {
       })
     );
 
-    return res.status(200).send(postagensComInfo);
+    return res.status(200).send(postagensComInfo.filter(Boolean));
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor");

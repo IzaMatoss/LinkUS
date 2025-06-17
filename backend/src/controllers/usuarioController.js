@@ -108,12 +108,16 @@ export async function acharUsuarios(req, res) {
 
 export async function atualizarUsuario(req, res) {
   const usuario = req.body;
+  console.log(usuario);
 
   const atualizarUsuarioSQL = "UPDATE usuario set url_foto = ? where email = ?";
   const acharUsuarioSQL = "SELECT id_usuario from usuario where email = ?";
   const apagarUsuarioInteressesSQL =
-    "DELETE ui.* from usuario_interesse ui join usuario u on u.id_usuario = ui.fk_usuario where u.email = ?";
-  const interesseJaExisteSQL = "SELECT * from interesse where nome = ?";
+    "DELETE from usuario_interesse where fk_usuario = ?";
+  const interesseJaExisteSQL =
+    "SELECT id_interesse from interesse where id_interesse = ?";
+  const acharNovoInteresseSQL =
+    "SELECT id_interesse from interesse where nome = ?";
   const criarInteresseSQL = "INSERT into interesse(nome) values(?)";
   const criarUsuarioInteresseSQL =
     "INSERT into usuario_interesse(fk_usuario, fk_interesse) values (?, ?)";
@@ -127,22 +131,29 @@ export async function atualizarUsuario(req, res) {
       return res.status(404).send("Usuário não encontrado");
 
     await pool.query(atualizarUsuarioSQL, [usuario.url_foto, usuario.email]);
-    await pool.query(apagarUsuarioInteressesSQL, [usuario.email]);
+    await pool.query(apagarUsuarioInteressesSQL, [
+      resultAcharUsuario[0].id_usuario,
+    ]);
 
     for (const interesse of usuario.interesses) {
       const [resultInteresseJaExiste] = await pool.query(interesseJaExisteSQL, [
-        interesse,
+        interesse.toLowerCase(),
       ]);
       if (!resultInteresseJaExiste[0]) {
-        await pool.query(criarInteresseSQL, [interesse]);
-        const [resultInteresseCriado] = await pool.query(interesseJaExisteSQL, [
-          interesse,
-        ]);
+        await pool.query(criarInteresseSQL, [interesse.toLowerCase()]);
+        const [resultInteresseCriado] = await pool.query(
+          acharNovoInteresseSQL,
+          [interesse.toLowerCase()]
+        );
+        console.log(resultAcharUsuario[0].id_usuario);
+        console.log(resultInteresseCriado);
         await pool.query(criarUsuarioInteresseSQL, [
           resultAcharUsuario[0].id_usuario,
           resultInteresseCriado[0].id_interesse,
         ]);
       } else {
+        console.log(resultAcharUsuario[0].id_usuario);
+        console.log(resultInteresseJaExiste[0].id_interesse);
         await pool.query(criarUsuarioInteresseSQL, [
           resultAcharUsuario[0].id_usuario,
           resultInteresseJaExiste[0].id_interesse,

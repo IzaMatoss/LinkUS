@@ -64,8 +64,8 @@ function Solicitacoes() {
                 <a
                   onClick={async () => {
                     const data = {};
-                    data.remetente = usuario.nome;
-                    data.destinatario = conexao.nome;
+                    data.remetente = conexao.nome;
+                    data.destinatario = usuario.nome;
 
                     const result = await fetch(
                       "http://localhost:5000/conexao/recusarSolicitacao",

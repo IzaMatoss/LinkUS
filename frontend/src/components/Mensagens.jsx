@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header.jsx";
 import Sidebar from "./Sidebar.jsx";
@@ -8,11 +8,15 @@ import { useAutenticador } from "./providers/useAutenticador.jsx";
 
 function Mensagens() {
   const navigate = useNavigate();
-  const { usuario, token } = useAutenticador();
+  const { token } = useAutenticador();
   const [termo, setTermo] = useState(null);
   const [conversa, setConversa] = useState(null);
-  if (!usuario || !token) navigate("/entrar");
-  console.log(usuario);
+  useEffect(() => {
+    if (!token) {
+      navigate("/entrar");
+      return null;
+    }
+  }, [token, navigate]);
 
   return (
     <article aria-label="Mensagens">

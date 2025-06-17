@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "./Header";
 import { Link, useNavigate } from "react-router-dom";
 import "../css/acessar.css";
+import { useAutenticador } from "./providers/useAutenticador";
 
 function Entrar() {
+  const { usuario, token } = useAutenticador();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (usuario || token) {
+      navigate("/post");
+    }
+  }, [usuario, token, navigate]);
 
   return (
     <article aria-label="entrar" id="entrar">

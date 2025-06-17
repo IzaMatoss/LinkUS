@@ -76,6 +76,7 @@ export async function aceitarSolicitacao(req, res) {
 
 export async function recusarSolicitacao(req, res) {
   const { remetente, destinatario } = req.body;
+  console.log(remetente);
 
   const recusarSolicitacaoSQL =
     "DELETE from conexao where usuario_1 = ? and usuario_2 = ?";

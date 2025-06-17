@@ -110,7 +110,7 @@ export function PostagensProvider({ children }) {
                 if (resInteracao.status === 200) {
                   const json = await resInteracao.json();
                   post.interacao = json.tipo;
-                } else {
+                } else if (resInteracao.status !== 202) {
                   console.error("Erro " + (await resInteracao.text()));
                   return;
                 }
@@ -171,7 +171,7 @@ export function PostagensProvider({ children }) {
     }
 
     acharPostagens();
-  }, [reloadPostagens, usuario, token]);
+  }, [reloadPostagens, usuario]);
 
   return (
     <PostagensContext.Provider

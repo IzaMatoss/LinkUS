@@ -35,6 +35,7 @@ function Header({ tipo, setTermo }) {
         <input
           type="text"
           placeholder="use # para interesses @ para pessoas"
+          id="search"
           onChange={(e) => setTermo(e.target.value)}
         />
         <img src="./icons/pesquisa.svg" alt="Ícone de pesquisa" />

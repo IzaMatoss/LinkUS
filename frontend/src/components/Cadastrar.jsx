@@ -2,9 +2,16 @@ import React from "react";
 import Header from "./Header";
 import { Link, useNavigate } from "react-router-dom";
 import "../css/acessar.css";
+import { useAutenticador } from "./providers/useAutenticador";
 
 function Cadastrar() {
+  const { usuario, token } = useAutenticador();
   const navigate = useNavigate();
+
+  if (usuario || token) {
+    navigate("/post");
+    return null;
+  }
 
   return (
     <article aria-label="cadastrar" id="cadastrar">

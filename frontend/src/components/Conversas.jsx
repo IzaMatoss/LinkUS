@@ -90,6 +90,7 @@ function Conversas({ conversa, setConversa }) {
           console.error(
             "Erro ao tentar enviar mensagem: " + (await result.text())
           );
+        else setAtualizarMensagens((val) => !val);
       } catch (error) {
         console.error("Erro interno do servidor: " + error);
       }
@@ -147,17 +148,26 @@ function Conversas({ conversa, setConversa }) {
     }
   }, [conversa, atualizarMensagens]);
 
+  useEffect(() => {
+    const mensagens_atuais = document.getElementById("conteudo-conversa");
+    if (mensagens_atuais)
+      mensagens_atuais.scrollTop = mensagens_atuais.scrollHeight;
+  }, [mensagens]);
+
   return conversa ? (
     <div id="mensagens-atuais">
       <div>
-        <img
-          src={conversa.url_foto || "./icons/padrao.svg"}
-          alt="Foto de perfil da conversa"
-        />
-        <p>@{conversa.nome}</p>
+        <div>
+          <img
+            id="foto-perfil"
+            src={conversa.url_foto || "./icons/padrao.svg"}
+            alt="Foto de perfil da conversa"
+          />
+          <p>@{conversa.nome}</p>
+        </div>
         <img src="./icons/info.svg" alt="Ícone de informações da conversa" />
       </div>
-      <ul>
+      <ul id="conteudo-conversa">
         {mensagens &&
           mensagens.map((mensagem) => {
             console.log(mensagem);

@@ -71,6 +71,7 @@
 #imagem-post,
 #video-post {
   width: 100%;
+  margin-bottom: 20px;
 }
 
 #conteudo-post ul {

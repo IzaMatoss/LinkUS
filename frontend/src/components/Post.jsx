@@ -21,7 +21,7 @@ function Post() {
 
   useEffect(() => {
     async function logar() {
-      if (!usuario && !jaTentouLogar)
+      if (!usuario && !token && !jaTentouLogar)
         try {
           if (!(await login(dados.email, dados.senha))) navigate("/");
         } catch {
@@ -32,7 +32,7 @@ function Post() {
     }
 
     logar();
-  }, [login, token, usuario, dados, navigate, jaTentouLogar]);
+  }, [token, usuario, dados, navigate, jaTentouLogar]);
 
   useEffect(() => {
     if (usuario?.nome && acharUsuarioInfo) {
