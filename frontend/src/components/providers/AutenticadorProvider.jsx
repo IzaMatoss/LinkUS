@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 export function AutenticadorProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [usuario, setUsuario] = useState(null);
-  const [usuarioTrigger, setUsuarioTrigger] = useState(false);
+  const [tokenNovo, setTokenNovo] = useState();
 
   useEffect(() => {
     if (token) {
@@ -19,7 +19,16 @@ export function AutenticadorProvider({ children }) {
         logout();
       }
     }
-  }, [token, usuarioTrigger]);
+  }, [token]);
+
+  useEffect(() => {
+    if (tokenNovo?.token) {
+      localStorage.removeItem("token");
+      localStorage.setItem("token", tokenNovo.token);
+      setToken(tokenNovo.token);
+      setUsuario(jwtDecode(tokenNovo.token));
+    }
+  }, [tokenNovo]);
 
   async function login(email, senha) {
     const result = await fetch("http://localhost:5000/usuario/logarUsuario", {
@@ -50,7 +59,7 @@ export function AutenticadorProvider({ children }) {
 
   return (
     <AutenticadorContext.Provider
-      value={{ token, login, logout, usuario, setUsuarioTrigger }}
+      value={{ token, login, logout, usuario, setTokenNovo }}
     >
       {children}
     </AutenticadorContext.Provider>

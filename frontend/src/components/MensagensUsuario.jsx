@@ -3,7 +3,7 @@ import { useMensagens } from "./providers/useMensagens";
 import { useAutenticador } from "./providers/useAutenticador";
 import "../css/mensagensUsuario.css";
 
-function MensagensUsuario({ conversa, setConversa }) {
+function MensagensUsuario({ conversa, setConversa, setModal, redirec }) {
   const { usuario } = useAutenticador();
   const { acharMensagensPorUsuario, mensagensUsuario } = useMensagens();
 
@@ -33,29 +33,40 @@ function MensagensUsuario({ conversa, setConversa }) {
           </li>
         )}
         {mensagensFiltradas &&
-          mensagensFiltradas.map((mensagem) => (
-            <li
-              key={mensagem.nome}
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                setMensagensFiltradas(
-                  mensagensUsuario.filter((men) => {
-                    return men.nome !== mensagem.nome;
-                  })
-                );
-                setConversa(mensagem);
-              }}
-            >
-              <img
-                src={mensagem.url_midia || "./icons/padrao.svg"}
-                alt="Imagem da conversa"
-              />
-              <div>
-                <p>@{mensagem.nome}</p>
-                <p>{mensagem.texto}</p>
-              </div>
-            </li>
-          ))}
+          mensagensFiltradas.map((mensagem) => {
+            if (mensagem.nome === redirec?.nome && !conversa) {
+              setMensagensFiltradas(
+                mensagensUsuario.filter((men) => {
+                  return men.nome !== mensagem.nome;
+                })
+              );
+              setConversa(mensagem);
+            }
+            return (
+              <li
+                key={mensagem.nome}
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  setMensagensFiltradas(
+                    mensagensUsuario.filter((men) => {
+                      return men.nome !== mensagem.nome;
+                    })
+                  );
+                  setConversa(mensagem);
+                  setModal(null);
+                }}
+              >
+                <img
+                  src={mensagem.url_midia || "./icons/padrao.svg"}
+                  alt="Imagem da conversa"
+                />
+                <div>
+                  <p>@{mensagem.nome}</p>
+                  <p>{mensagem.texto}</p>
+                </div>
+              </li>
+            );
+          })}
       </ul>
     </div>
   );

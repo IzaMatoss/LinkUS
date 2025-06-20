@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   mandarMensagem,
+  excluirMensagem,
   atualizarStatusMensagens,
   listarConversasUsuario,
   mandarMensagemGrupo,
@@ -11,6 +12,7 @@ import {
 const router = Router();
 
 router.post("/mandarMensagem", mandarMensagem);
+router.delete("/excluirMensagem", excluirMensagem);
 router.put("/atualizarStatusMensagens", atualizarStatusMensagens);
 router.get("/listarConversasUsuario/:email", listarConversasUsuario);
 router.get(

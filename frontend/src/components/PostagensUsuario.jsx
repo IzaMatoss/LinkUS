@@ -6,7 +6,7 @@ import { ptBR } from "date-fns/locale";
 import "../css/postagensUsuario.css";
 
 function PostagensUsuario() {
-  const { usuario, token, setUsuarioTrigger } = useAutenticador();
+  const { usuario, token, setTokenNovo } = useAutenticador();
   const { postagensUsuario, acharPostagensPorUsuario } = usePostagens();
   const [editarPerfil, setEditarPerfil] = useState(false);
   const [novaFoto, setNovaFoto] = useState(null);
@@ -18,7 +18,6 @@ function PostagensUsuario() {
     const data = {};
     data.email = usuario.email;
     data.interesses = novosInteresses;
-    console.log(novosInteresses);
     if (novaFoto) {
       const formData = new FormData();
       formData.append("image", novaFoto);
@@ -46,7 +45,7 @@ function PostagensUsuario() {
       },
     });
 
-    if (res.status === 200) setUsuarioTrigger((ant) => !ant);
+    if (res.status === 200) setTokenNovo(await res.json());
     else
       console.error("Erro ao tentar atualizar o perfil: " + (await res.text()));
 
@@ -153,7 +152,8 @@ function PostagensUsuario() {
   }, [usuario]);
 
   useEffect(() => {
-    if (usuario?.interesses) setNovosInteresses(usuario.interesses);
+    if (usuario?.interesses && usuario.interesses[0] != null)
+      setNovosInteresses(usuario.interesses);
   }, [usuario?.interesses]);
 
   return (
@@ -176,7 +176,7 @@ function PostagensUsuario() {
           <p>editar perfil</p>
         </a>
       </div>
-      {usuario?.interesses && (
+      {usuario?.interesses && usuario.interesses[0] && (
         <ul id="interesses">
           {usuario.interesses.map((interesse) => (
             <li key={interesse}>
@@ -279,6 +279,7 @@ function PostagensUsuario() {
               <input
                 type="file"
                 id="midia"
+                name="midia"
                 accept="image/jpeg, image/png, image/gif, image/bmp, image/webp"
                 style={{ display: "none" }}
                 onChange={(e) => {

@@ -33,6 +33,18 @@
   cursor: pointer;
 }
 
+#perfil-info a:hover {
+  background-color: var(--p5);
+  color: var(--c2);
+}
+
+#perfil-info a.inative,
+#perfil-info a.inative:hover {
+  background-color: var(--p5);
+  color: var(--c2);
+  cursor: default;
+}
+
 #interesses {
   display: flex;
   gap: 24px;

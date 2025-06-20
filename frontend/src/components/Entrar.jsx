@@ -36,8 +36,18 @@ function Entrar() {
             Olá novamente! Coloque as informações abaixo para entrar em sua
             conta.
           </p>
-          <input type="text" placeholder="email" name="email" />
-          <input type="text" placeholder="senha" name="senha" />
+          <input
+            type="text"
+            placeholder="email"
+            name="email"
+            autoComplete="email"
+          />
+          <input
+            type="password"
+            placeholder="senha"
+            name="senha"
+            autoComplete="current-password"
+          />
           <Link to="/cadastro">
             <p>Não possui uma conta?</p>
           </Link>

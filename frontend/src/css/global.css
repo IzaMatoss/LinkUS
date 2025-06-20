@@ -37,6 +37,43 @@ li {
   max-height: 80vh;
 }
 
+#temporario {
+  left: 50%;
+  transform: translateX(-50%);
+  animation: aparecer 0.3s ease;
+}
+
+.barra-progresso {
+  height: 4px;
+  width: 100%;
+  background-color: var(--c1);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transform-origin: left;
+  animation: tempoSumir 4s linear forwards;
+}
+
+@keyframes tempoSumir {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
 .container {
   margin: 0px 60px;
 }

@@ -20,8 +20,11 @@ function Solicitacoes() {
     <div id="solicitacoes">
       <h2>Solicitações</h2>
       <ul>
-        {conexoesUsuario.map((conexao) =>
-          conexao.status !== "aceito" ? (
+        {conexoesUsuario.map((conexao) => {
+          console.log(conexao);
+          return conexao.status !== "aceito" &&
+            conexao.nome !== usuario.nome &&
+            conexao.requisicao === "remetente" ? (
             <li>
               <div>
                 <img
@@ -35,8 +38,8 @@ function Solicitacoes() {
                 <a
                   onClick={async () => {
                     const data = {};
-                    data.remetente = usuario.nome;
-                    data.destinatario = conexao.nome;
+                    data.remetente = conexao.nome;
+                    data.destinatario = usuario.nome;
 
                     const result = await fetch(
                       "http://localhost:5000/conexao/aceitarSolicitacao",
@@ -92,8 +95,8 @@ function Solicitacoes() {
                 </a>
               </div>
             </li>
-          ) : null
-        )}
+          ) : null;
+        })}
       </ul>
     </div>
   );

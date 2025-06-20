@@ -112,6 +112,8 @@ export async function atualizarUsuario(req, res) {
 
   const atualizarUsuarioSQL = "UPDATE usuario set url_foto = ? where email = ?";
   const acharUsuarioSQL = "SELECT id_usuario from usuario where email = ?";
+  const acharUsuarioAtualizadoSQL =
+    "SELECT u.*, JSON_ARRAYAGG(i.nome) AS interesses from usuario u left join usuario_interesse ui on ui.fk_usuario = u.id_usuario left join interesse i on ui.fk_interesse = i.id_interesse where email = ? group by u.email";
   const apagarUsuarioInteressesSQL =
     "DELETE from usuario_interesse where fk_usuario = ?";
   const interesseJaExisteSQL =
@@ -161,7 +163,20 @@ export async function atualizarUsuario(req, res) {
       }
     }
 
-    return res.status(200).send("Usuário foi atualizado");
+    const [resultAcharUsuarioAtualizado] = await pool.query(
+      acharUsuarioAtualizadoSQL,
+      [usuario.email]
+    );
+
+    const token = jwt.sign(
+      resultAcharUsuarioAtualizado[0],
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "6h",
+      }
+    );
+
+    return res.status(200).send({ token });
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor");

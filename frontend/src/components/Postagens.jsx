@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useAutenticador } from "./providers/useAutenticador";
@@ -9,38 +10,13 @@ import Loading from "./Loading";
 import { useConexao } from "./providers/useConexao";
 
 function Postagens({ termo }) {
+  const navigate = useNavigate();
   const { usuario, token } = useAutenticador();
   const { postagens, setReloadPostagens } = usePostagens();
   const [postagensFiltradas, setPostagensFiltradas] = useState(postagens);
   const [midia, setMidia] = useState(null);
-  const [solicitacao, setSolicitacao] = useState(null);
   const { conexoesUsuario, conexoesUsuarioLoading, acharConexoesPorUsuario } =
     useConexao();
-
-  async function enviarSolicitacao(destinatario) {
-    const data = {};
-    data.remetente = usuario.nome;
-    data.destinatario = destinatario;
-
-    try {
-      const result = await fetch(
-        "http://localhost:5000/conexao/enviarSolicitacao",
-        {
-          method: "POST",
-          body: JSON.stringify(data),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (result.status != 200)
-        console.error("Erro ao mandar a solicitação: " + (await result.text()));
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   async function interagirPostagem(postagem, tipo, comentario) {
     if (
@@ -235,7 +211,7 @@ function Postagens({ termo }) {
   }
 
   return (
-    <div id="postagens" onClick={() => setSolicitacao(false)}>
+    <div id="postagens">
       <div id="novo-post" className="conteudo">
         <img
           id="foto-perfil"
@@ -248,8 +224,9 @@ function Postagens({ termo }) {
           placeholder="Digite o que está pensando..."
           onKeyUp={async (e) => {
             if (e.key === "Enter") {
-              const data = {};
-              data.texto = e.target.value;
+              const info = {};
+              info.texto = e.target.value;
+              e.target.value = "";
               if (midia && midia.tipo === "imagem") {
                 const formData = new FormData();
                 formData.append("image", midia.conteudo);
@@ -262,33 +239,46 @@ function Postagens({ termo }) {
                   });
 
                   const json = await res.json();
-                  data.tipo = midia.tipo;
-                  data.url_midia = json.data.url;
+                  info.tipo = midia.tipo;
+                  info.url_midia = json.data.url;
                 } catch (err) {
                   console.error("Erro de rede:", err);
                 }
               } else if (midia && midia.tipo === "video") {
-                const supabase = createClient(
-                  "https://uryeqjptemdyznogbeus.supabase.co",
-                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyeWVxanB0ZW1keXpub2diZXVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkzMDI4OTcsImV4cCI6MjA2NDg3ODg5N30.h-xARu8XNys8En6VbKaH_hiBO-oBRPOzUxkgSh3dOPw"
-                );
+                try {
+                  const supabase = createClient(
+                    "https://uryeqjptemdyznogbeus.supabase.co",
+                    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyeWVxanB0ZW1keXpub2diZXVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkzMDI4OTcsImV4cCI6MjA2NDg3ODg5N30.h-xARu8XNys8En6VbKaH_hiBO-oBRPOzUxkgSh3dOPw"
+                  );
 
-                const { data, error } = await supabase.storage
-                  .from("ebooks")
-                  .upload(`epubs/${Date.now()}-${midia.nome}`, midia.conteudo);
+                  const { data, error } = await supabase.storage
+                    .from("linkus")
+                    .upload(
+                      `videos/${Date.now()}-${midia.conteudo.name
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/[^a-zA-Z0-9.]/g, "-")
+                        .toLowerCase()}`,
+                      midia.conteudo
+                    );
 
-                if (error) console.error(error);
-                data.url_midia = `https://uryeqjptemdyznogbeus.supabase.co/storage/v1/object/public/ebooks/${data.path}`;
-                data.tipo = midia.tipo;
+                  if (error) return console.error(error);
+                  info.url_midia = `https://uryeqjptemdyznogbeus.supabase.co/storage/v1/object/public/linkus/${data.path}`;
+                  info.tipo = midia.tipo;
+                  console.log(info);
+                } catch (error) {
+                  console.error(error);
+                }
               }
 
-              data.nomeAutor = usuario.nome;
+              setMidia(null);
+              info.nomeAutor = usuario.nome;
 
               const result = await fetch(
                 "http://localhost:5000/postagem/criarPostagem",
                 {
                   method: "POST",
-                  body: JSON.stringify(data),
+                  body: JSON.stringify(info),
                   headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -296,14 +286,13 @@ function Postagens({ termo }) {
                 }
               );
 
-              e.target.value = "";
-
               if (result.status != 201) console.error(await result.text());
               else setReloadPostagens((val) => !val);
             }
           }}
         />
         <div>
+          {midia && <p id="file-name">{midia.conteudo.name}</p>}
           <input
             type="file"
             id="midia"
@@ -312,7 +301,7 @@ function Postagens({ termo }) {
             onChange={(e) => {
               const arquivo = e.target.files[0];
               if (arquivo.type === "video/mp4")
-                setMidia({ tipo: "video", arquivo });
+                setMidia({ tipo: "video", conteudo: arquivo });
               else setMidia({ tipo: "imagem", conteudo: arquivo });
             }}
           />
@@ -330,7 +319,17 @@ function Postagens({ termo }) {
                 className="conteudo"
                 id="conteudo-post"
               >
-                <div id="post">
+                <div
+                  id="post"
+                  style={{ cursor: "pointer" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (postagem.nome !== usuario.nome)
+                      navigate(`/usuario`, {
+                        state: postagem,
+                      });
+                  }}
+                >
                   <img
                     id="foto-perfil"
                     src={
@@ -339,6 +338,9 @@ function Postagens({ termo }) {
                         : "./icons/padrao.svg"
                     }
                     alt={`Foto do usuário ${postagem.nome}`}
+                  />
+                  <div
+                    id="info"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (
@@ -347,15 +349,9 @@ function Postagens({ termo }) {
                         ) &&
                         usuario.nome !== postagem.nome
                       )
-                        setSolicitacao(true);
-                    }}
-                    style={{ cursor: "pointer" }}
-                  />
-                  <div
-                    id="info"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSolicitacao(true);
+                        navigate(`/usuario`, {
+                          state: postagem,
+                        });
                     }}
                     style={{ cursor: "pointer" }}
                   >
@@ -367,18 +363,6 @@ function Postagens({ termo }) {
                       })}
                     </p>
                   </div>
-                  {solicitacao && (
-                    <div
-                      id="modal-solicitacao"
-                      onClick={() => enviarSolicitacao(postagem.nome)}
-                    >
-                      <img
-                        src="./icons/enviarSolicitacao.svg"
-                        alt="Ícone de enviar solicitação"
-                      />
-                      <p>enviar solicitação</p>
-                    </div>
-                  )}
                 </div>
                 <p>{postagem.texto}</p>
                 {postagem.tipo_conteudo === "imagem" && (

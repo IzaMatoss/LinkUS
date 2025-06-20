@@ -1,11 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../css/header.css";
 import { useAutenticador } from "./providers/useAutenticador";
 import Loading from "./Loading.jsx";
 
 function Header({ tipo, setTermo }) {
-  const { usuario } = useAutenticador();
+  const navigate = useNavigate();
+  const { usuario, logout } = useAutenticador();
 
   if (tipo === "pagina-inicial" || tipo === "cadastro")
     return (
@@ -51,6 +52,14 @@ function Header({ tipo, setTermo }) {
             alt="Ícone de perfil"
           />
         </Link>
+        <img
+          src="./icons/logout.svg"
+          alt="Ícone para sair da sua conta"
+          onClick={() => {
+            navigate("/");
+            logout();
+          }}
+        />
       </div>
     </header>
   );

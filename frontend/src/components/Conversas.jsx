@@ -4,8 +4,9 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useConexao } from "./providers/useConexao";
 import { useAutenticador } from "./providers/useAutenticador";
+import Erro from "./Erro";
 
-function Conversas({ conversa, setConversa }) {
+function Conversas({ conversa, setConversa, setModal }) {
   const { usuario, token } = useAutenticador();
   const [novaMensagem, setNovaMensagem] = useState(false);
   const [mensagens, setMensagens] = useState(null);
@@ -14,6 +15,8 @@ function Conversas({ conversa, setConversa }) {
   const [atualizarMensagens, setAtualizarMensagens] = useState(false);
   const [novosIntegrantes, setNovosIntegrantes] = useState([]);
   const [novoGrupo, setNovoGrupo] = useState({});
+  const [modalMensagem, setModalMensagem] = useState();
+  const [modalErro, setModalErro] = useState(null);
 
   async function criarGrupo() {
     const data = {
@@ -55,6 +58,8 @@ function Conversas({ conversa, setConversa }) {
             "Erro ao tentar adicionar participante: ",
             await res.text()
           );
+        } else {
+          acharConexoesPorUsuario(usuario.nome);
         }
       }
 
@@ -154,8 +159,11 @@ function Conversas({ conversa, setConversa }) {
       mensagens_atuais.scrollTop = mensagens_atuais.scrollHeight;
   }, [mensagens]);
 
+  if (modalErro)
+    return <Erro mensagem={modalErro} setModalErro={setModalErro} />;
+
   return conversa ? (
-    <div id="mensagens-atuais">
+    <div id="mensagens-atuais" onClick={() => setModalMensagem(null)}>
       <div>
         <div>
           <img
@@ -165,12 +173,20 @@ function Conversas({ conversa, setConversa }) {
           />
           <p>@{conversa.nome}</p>
         </div>
-        <img src="./icons/info.svg" alt="Ícone de informações da conversa" />
+        {conversa.tipo === "grupo" && (
+          <img
+            src="./icons/info.svg"
+            alt="Ícone de informações da conversa"
+            style={{ cursor: "pointer" }}
+            onClick={() => {
+              setModal(conversa);
+            }}
+          />
+        )}
       </div>
       <ul id="conteudo-conversa">
         {mensagens &&
           mensagens.map((mensagem) => {
-            console.log(mensagem);
             return (
               <li
                 key={mensagem.id_mensagem}
@@ -179,10 +195,78 @@ function Conversas({ conversa, setConversa }) {
                     ? "enviada"
                     : "recebida"
                 }
-                onContextMenu={(e) => {
-                  e.preventDefault();
+                id={
+                  mensagem.id_mensagem === modalMensagem?.id_mensagem
+                    ? "modal"
+                    : ""
+                }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setModalMensagem(mensagem);
                 }}
               >
+                {modalMensagem?.id_mensagem === mensagem.id_mensagem && (
+                  <div
+                    id="modal-excluir"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (conversa.tipo === "grupo") {
+                        const data = {
+                          nomeAdmin: usuario.nome,
+                          nomeGrupo: conversa.nome,
+                          id_mensagem: mensagem.id_mensagem,
+                        };
+
+                        const res = await fetch(
+                          "http://localhost:5000/mensagem/excluirMensagemGrupo",
+                          {
+                            method: "DELETE",
+                            body: JSON.stringify(data),
+                            headers: {
+                              "Content-Type": "application/json",
+                              Authorization: `Bearer ${token}`,
+                            },
+                          }
+                        );
+
+                        if (res.status !== 200)
+                          setModalErro(
+                            "Erro ao tentar excluir a mensagem: " +
+                              (await res.text())
+                          );
+                        else setAtualizarMensagens((val) => !val);
+                      } else {
+                        const data = {
+                          nomeUsuario: usuario.nome,
+                          nomeAmigo: conversa.nome,
+                          id_mensagem: mensagem.id_mensagem,
+                        };
+
+                        const res = await fetch(
+                          "http://localhost:5000/mensagem/excluirMensagem",
+                          {
+                            method: "DELETE",
+                            body: JSON.stringify(data),
+                            headers: {
+                              "Content-Type": "application/json",
+                              Authorization: `Bearer ${token}`,
+                            },
+                          }
+                        );
+
+                        if (res.status !== 200)
+                          setModalErro(
+                            "Erro ao tentar excluir a mensagem: " +
+                              (await res.text())
+                          );
+                        else setAtualizarMensagens((val) => !val);
+                      }
+                    }}
+                  >
+                    <img src="./icons/lixeira.svg" alt="Ícone de lixeira" />
+                    <p>Excluir mensagem</p>
+                  </div>
+                )}
                 <p>{mensagem.texto}</p>
                 <div>
                   <p>

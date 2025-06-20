@@ -15,6 +15,7 @@ import { PostagensProvider } from "./components/providers/PostagensProvider.jsx"
 import { MensagensProvider } from "./components/providers/MensagensProvider.jsx";
 import { ConexoesProvider } from "./components/providers/ConexoesProvider.jsx";
 import Amigos from "./components/Amigos.jsx";
+import OutroUsuario from "./components/OutroUsuario.jsx";
 
 createRoot(document.getElementById("root")).render(
   <AutenticadorProvider>
@@ -32,6 +33,7 @@ createRoot(document.getElementById("root")).render(
                   <Route path="/perfil" element={<Perfil />} />
                   <Route path="/mensagem" element={<Mensagens />} />
                   <Route path="/amigo" element={<Amigos />} />
+                  <Route path="/usuario" element={<OutroUsuario />} />
                 </Routes>
               </Router>
             </ConexoesProvider>

@@ -4,8 +4,7 @@ import Header from "./Header.jsx";
 import { useUsuarios } from "./providers/useUsuarios.jsx";
 
 function App() {
-  const { usuarios, usuariosLoading, usuariosTrigger, setUsuariosTrigger } =
-    useUsuarios();
+  const { usuariosLoading } = useUsuarios();
   return usuariosLoading ? <Loading /> : <Header tipo={"pagina-inicial"} />;
 }
 

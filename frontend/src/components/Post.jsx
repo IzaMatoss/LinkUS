@@ -16,19 +16,19 @@ function Post() {
   const { acharMensagensPorUsuario } = useMensagens();
   const { login, usuario, token } = useAutenticador();
   const [termo, setTermo] = useState(null);
-  const { acharUsuarioInfo, setAcharUsuarioInfo } = useState(true);
+  const [acharUsuarioInfo, setAcharUsuarioInfo] = useState(true);
   const [jaTentouLogar, setJaTentouLogar] = useState(false);
 
   useEffect(() => {
     async function logar() {
-      if (!usuario && !token && !jaTentouLogar)
-        try {
-          if (!(await login(dados.email, dados.senha))) navigate("/");
-        } catch {
-          navigate("/");
-        } finally {
-          setJaTentouLogar(true);
-        }
+      if (usuario || token || jaTentouLogar) return;
+      try {
+        if (!(await login(dados.email, dados.senha))) navigate("/");
+      } catch {
+        navigate("/");
+      } finally {
+        setJaTentouLogar(true);
+      }
     }
 
     logar();
@@ -43,7 +43,7 @@ function Post() {
   }, [usuario, acharUsuarioInfo]);
 
   return (
-    <article aria-label="postagens">
+    <article aria-label="postagens" id="postagens-article">
       <Header tipo="logado" setTermo={setTermo} />
       <div>
         <Sidebar ativo="home" />

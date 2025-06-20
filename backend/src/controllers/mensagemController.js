@@ -36,6 +36,44 @@ export async function mandarMensagem(req, res) {
   }
 }
 
+export async function excluirMensagem(req, res) {
+  const { nomeUsuario, nomeAmigo, id_mensagem } = req.body;
+  const acharUsuarioPorNomeSQL =
+    "select id_usuario from usuario u where nome = ?";
+  const excluirMensagemSQL =
+    "delete from mensagem where fk_remetente = ? and fk_destinatario = ? and id_mensagem = ?";
+
+  try {
+    const [resultAcharRemetente] = await pool.query(acharUsuarioPorNomeSQL, [
+      nomeUsuario,
+    ]);
+    if (!resultAcharRemetente[0])
+      return res.status(404).send("Remetente não encontrado");
+
+    const [resultAcharDestinatario] = await pool.query(acharUsuarioPorNomeSQL, [
+      nomeAmigo,
+    ]);
+    if (!resultAcharDestinatario[0])
+      return res.status(404).send("Destinatário não encontrado");
+
+    const [result] = await pool.query(excluirMensagemSQL, [
+      resultAcharRemetente[0].id_usuario,
+      resultAcharDestinatario[0].id_usuario,
+      id_mensagem,
+    ]);
+
+    if (result.affectedRows === 0)
+      return res
+        .status(403)
+        .send("Não é possível deletar mensagens de outros usuários");
+
+    return res.status(200).send("Mensagem deletada com sucesso");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Erro interno do servidor");
+  }
+}
+
 export async function atualizarStatusMensagens(req, res) {
   const { nomeRemetente, nomeDestinatario, status } = req.body;
   const acharUsuarioPorNomeSQL =
@@ -120,6 +158,7 @@ export async function listarConversasUsuario(req, res) {
         g.id_grupo,
         g.nome,
         g.descricao,
+        g.data_criacao,
         m.texto,
         m.data_envio,
         'grupo' AS tipo

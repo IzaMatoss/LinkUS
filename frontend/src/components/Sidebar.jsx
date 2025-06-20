@@ -1,11 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useGrupos } from "./providers/useGrupos";
 import "../css/sidebar.css";
 
 function Sidebar({ ativo }) {
+  const navigate = useNavigate();
   const { gruposUsuario } = useGrupos();
 
+  console.log(gruposUsuario);
   return (
     <div className="container" id="sidebar">
       <Link className={ativo === "home" ? "active" : ""} to="/post">
@@ -25,10 +27,22 @@ function Sidebar({ ativo }) {
         <ul>
           {gruposUsuario &&
             gruposUsuario.map((grupo, index) =>
-              index > 5 ? null : (
-                <li key={index}>
-                  <p>{grupo.nome}</p>
-                  <p>{grupo.descricao}</p>
+              index > 2 ? null : (
+                <li
+                  key={index}
+                  onClick={() => {
+                    navigate("/mensagem", { state: grupo });
+                  }}
+                >
+                  <img
+                    id="foto-perfil"
+                    src={gruposUsuario.url_foto ?? "./icons/padrao.svg"}
+                    alt="Imagem do grupo"
+                  />
+                  <div>
+                    <p>{grupo.nome}</p>
+                    <p>{grupo.descricao}</p>
+                  </div>
                 </li>
               )
             )}
