@@ -11,6 +11,10 @@
 - **Gerenciamento de Containers:** Docker
 
 ---
+## 🌐 Acesse o Projeto
+
+[![LinkUS](https://img.shields.io/badge/linkus-265FDA?style=for-the-badge&labelColor=black)](https://projetos-em-grupo.github.io/LinkUS)
+---
 
 ## 🛠️ Como rodar o projeto
 
