@@ -18,7 +18,11 @@ const pool = mysql.createPool({
   multipleStatements: true,
 });
 
-const sql = fs.readFileSync("./scripts/schema.sql", "utf8");
-await pool.query(sql);
+async function iniciarBancoScript() {
+  const sql = fs.readFileSync("./scripts/schema.sql", "utf8");
+  await pool.query(sql);
+}
+
+iniciarBancoScript();
 
 export default pool;
