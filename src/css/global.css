@@ -1,0 +1,85 @@
+p,
+h1,
+h2,
+h3,
+h4,
+ul,
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+li {
+  list-style: none;
+}
+
+.modal {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.modal-content {
+  width: 40%;
+  background-color: var(--c9);
+  margin: 6% auto;
+  padding: 32px 60px;
+  border-radius: 8px;
+  max-height: 80vh;
+}
+
+#temporario {
+  left: 50%;
+  transform: translateX(-50%);
+  animation: aparecer 0.3s ease;
+}
+
+.barra-progresso {
+  height: 4px;
+  width: 100%;
+  background-color: var(--c1);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transform-origin: left;
+  animation: tempoSumir 4s linear forwards;
+}
+
+@keyframes tempoSumir {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.container {
+  margin: 0px 60px;
+}
+
+#foto-perfil {
+  border-radius: 80px;
+  width: 60px;
+  height: 60px;
+}
