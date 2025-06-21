@@ -13,6 +13,10 @@ import { verificarToken } from "./middlewareAutenticador.js";
 
 dotenv.config();
 
+console.log("⚙️ Iniciando servidor Node...");
+console.log("🔧 Porta:", process.env.PORT);
+console.log("🔧 Host do banco:", process.env.DB_HOST);
+
 const PORT = process.env.PORT || 8080;
 
 const app = express();
