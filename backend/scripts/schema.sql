@@ -1,6 +1,3 @@
-create database if not exists linkus;
-use linkus;
-
 create table if not exists interesse (
 	id_interesse char(36) primary key default (uuid()),
     nome varchar(30) not null
@@ -103,22 +100,19 @@ create table if not exists interacao(
 	foreign key(fk_comentario) references comentario(id_comentario)
 );
 
-DELIMITER $$
+DROP TRIGGER IF EXISTS after_novo_participante;
 
 CREATE TRIGGER after_novo_participante
 AFTER INSERT ON participante
 FOR EACH ROW
 BEGIN
-    INSERT INTO mensagem (texto, fk_remetente, fk_grupo)
-    VALUES (
-        CONCAT(
-            'Bem-vindo(a) ao grupo! Usuário ',
-            (SELECT nome FROM usuario WHERE id_usuario = NEW.fk_participante),
-            ' agora faz parte do grupo.'
-        ),
-        NEW.fk_participante,
-        NEW.fk_grupo
-    );
-END$$
+  DECLARE nome_usuario VARCHAR(150);
+  SELECT nome INTO nome_usuario FROM usuario WHERE id_usuario = NEW.fk_participante;
 
-DELIMITER ;
+  INSERT INTO mensagem (texto, fk_remetente, fk_grupo)
+  VALUES (
+    CONCAT('Bem-vindo(a) ao grupo! Usuário ', nome_usuario),
+    NEW.fk_participante,
+    NEW.fk_grupo
+  );
+END;
