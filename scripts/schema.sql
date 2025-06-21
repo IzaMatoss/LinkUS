@@ -1,3 +1,5 @@
+use btlirhdq6vwthdkzkpx1;
+
 create table if not exists interesse (
 	id_interesse char(36) primary key default (uuid()),
     nome varchar(30) not null
