@@ -26,7 +26,7 @@ Crie um arquivo .env e dentro insira:
    DB_HOST=127.0.0.1
    DB_USER=root
    DB_PASSWORD=sua_senha
-   DB_NAME=nome_do_database
+   DB_NAME=linkus
    DB_PORT=3306
 4. **Backend**
    ```bash
