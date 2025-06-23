@@ -87,9 +87,9 @@ create table if not exists comentario(
 	fk_autor char(36) not null,
     fk_postagem char(36) not null,
     fk_comentario_pai char(36),
-    foreign key(fk_autor) references usuario(id_usuario),
-	foreign key(fk_postagem) references postagem(id_postagem),
-	foreign key(fk_comentario_pai) references comentario(id_comentario)
+    foreign key(fk_autor) references usuario(id_usuario) on delete cascade,
+	foreign key(fk_postagem) references postagem(id_postagem) on delete cascade,
+	foreign key(fk_comentario_pai) references comentario(id_comentario) on delete cascade
 );
 
 create table if not exists interacao(
@@ -98,9 +98,9 @@ create table if not exists interacao(
 	fk_postagem char(36) not null,
     fk_usuario char(36) not null,
     fk_comentario char(36),
-    foreign key(fk_postagem) references postagem(id_postagem),
-    foreign key(fk_usuario) references usuario(id_usuario),
-	foreign key(fk_comentario) references comentario(id_comentario)
+    foreign key(fk_postagem) references postagem(id_postagem) on delete cascade,
+    foreign key(fk_usuario) references usuario(id_usuario) on delete cascade,
+	foreign key(fk_comentario) references comentario(id_comentario) on delete cascade
 );
 
 DROP TRIGGER IF EXISTS after_novo_participante;
