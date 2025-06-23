@@ -17,6 +17,8 @@ function Postagens({ termo }) {
   const { conexoesUsuario, conexoesUsuarioLoading, acharConexoesPorUsuario } =
     useConexao();
 
+  console.log(usuario);
+
   async function interagirPostagem(postagem, tipo, comentario) {
     if (
       (comentario && !comentario.interacao) ||
@@ -362,6 +364,43 @@ function Postagens({ termo }) {
                       })}
                     </p>
                   </div>
+                  {(postagem.nome === usuario.nome ||
+                    usuario.role === "admin") && (
+                    <img
+                      src="./icons/lixeira.svg"
+                      alt="Deletar postagem"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const data = {
+                          id_postagem: postagem.id_postagem,
+                          email: usuario.email,
+                        };
+
+                        try {
+                          const res = await fetch(
+                            "https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/postagem/deletarPostagem",
+                            {
+                              method: "DELETE",
+                              body: JSON.stringify(data),
+                              headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`,
+                              },
+                            }
+                          );
+
+                          if (res.status !== 200)
+                            console.error(
+                              "Erro ao tentar excluir a postagem: " +
+                                (await res.text())
+                            );
+                          else setReloadPostagens((val) => !val);
+                        } catch (error) {
+                          console.error(error);
+                        }
+                      }}
+                    />
+                  )}
                 </div>
                 <p>{postagem.texto}</p>
                 {postagem.tipo_conteudo === "imagem" && (

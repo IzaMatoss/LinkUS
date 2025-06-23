@@ -3,12 +3,16 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useConexao } from "./providers/useConexao";
 import { useAutenticador } from "./providers/useAutenticador";
+import { useGrupos } from "./providers/useGrupos";
 import Erro from "./Erro";
+import { useMensagens } from "./providers/useMensagens";
 
 function Conversas({ conversa, setConversa, setModal }) {
   const { usuario, token } = useAutenticador();
   const [novaMensagem, setNovaMensagem] = useState(false);
   const [mensagens, setMensagens] = useState(null);
+  const { acharMensagensPorUsuario } = useMensagens();
+  const { acharGruposPorUsuario } = useGrupos();
   const { acharConexoesPorUsuario, conexoesUsuario, conexoesUsuarioLoading } =
     useConexao();
   const [atualizarMensagens, setAtualizarMensagens] = useState(false);
@@ -63,11 +67,11 @@ function Conversas({ conversa, setConversa, setModal }) {
             "Erro ao tentar adicionar participante: ",
             await res.text()
           );
-        } else {
-          acharConexoesPorUsuario(usuario.nome);
         }
       }
 
+      acharGruposPorUsuario(usuario.nome);
+      acharMensagensPorUsuario(usuario.email);
       setNovoGrupo({});
       setNovosIntegrantes([]);
       setNovaMensagem(false);

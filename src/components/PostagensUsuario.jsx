@@ -291,7 +291,11 @@ function PostagensUsuario() {
               <label htmlFor="midia">
                 <img
                   id="foto-perfil"
-                  src={usuario.url_foto ?? "./icons/padrao.svg"}
+                  src={
+                    novaFoto
+                      ? URL.createObjectURL(novaFoto)
+                      : (usuario.url_foto ?? "./icons/padrao.svg")
+                  }
                   alt="Foto de perfil"
                 />
               </label>
