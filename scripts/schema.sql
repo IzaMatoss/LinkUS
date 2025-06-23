@@ -11,7 +11,8 @@ create table if not exists usuario (
 	email varchar(200) not null unique,
     senha varchar(100) not null,
     url_foto varchar(150),
-    data_nascimento date not null
+    data_nascimento date not null,
+    role enum("admin", "user") default "user"
 );
 
 create table if not exists usuario_interesse (

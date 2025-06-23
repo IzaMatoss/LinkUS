@@ -170,3 +170,36 @@ export async function acharPostagensUsuario(req, res) {
     return res.status(500).send("Erro interno do servidor");
   }
 }
+
+export async function deletarPostagem(req, res) {
+  const post = req.body;
+  const verificarAutorPostagemSQL =
+    "SELECT id_usuario from usuario u join postagem p on p.fk_autor = u.id_usuario where u.email = ? and id_postagem = ?";
+  const acharAdminPorEmailSQL =
+    "SELECT id_usuario from usuario u where email = ? and role = 'admin'";
+  const deletarPostagemSQL = "DELETE from postagem where id_postagem = ?";
+
+  try {
+    const [verificarAutorPostagem] = await pool.query(
+      verificarAutorPostagemSQL,
+      [post.email, post.id_postagem]
+    );
+
+    const [acharAdminPorEmail] = await pool.query(acharAdminPorEmailSQL, [
+      post.email,
+    ]);
+
+    if (!acharAdminPorEmail[0] && !verificarAutorPostagem[0])
+      return res
+        .status(403)
+        .send(
+          "Apenas administradores e autores das postagens podem apagar essa postagem"
+        );
+
+    await pool.query(deletarPostagemSQL, [post.id_postagem]);
+    return res.status(200).send("Postagem deletada com sucesso");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Erro interno do servidor");
+  }
+}
