@@ -78,3 +78,34 @@ export async function acharComentarios(req, res) {
     return res.status(500).send("Erro interno do servidor");
   }
 }
+
+export async function deletarComentario(req, res) {
+  const comentario = req.body;
+  const verificarAutorComentarioSQL =
+    "SELECT id_usuario from usuario u join comentario c on c.fk_autor = u.id_usuario where u.email = ? and id_comentario = ?";
+  const acharAdminPorEmailSQL =
+    "SELECT id_usuario from usuario u where email = ? and role = 'admin'";
+  const deletarComentarioSQL = "DELETE from comentario where id_comentario = ?";
+
+  try {
+    const [resultVerificarAutorComentario] = await pool.query(
+      verificarAutorComentarioSQL,
+      [comentario.email, comentario.id_comentario]
+    );
+    const [resultAcharAdminPorEmail] = await pool.query(acharAdminPorEmailSQL, [
+      comentario.email,
+    ]);
+    if (!resultVerificarAutorComentario[0] && !resultAcharAdminPorEmail[0])
+      return res
+        .status(403)
+        .send(
+          "Apenas o autor do comentário ou um administrador pode deletar um comentário"
+        );
+
+    await pool.query(deletarComentarioSQL, [comentario.id_comentario]);
+    return res.status(200).send("Comentário deletado com sucesso");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Erro interno do servidor");
+  }
+}

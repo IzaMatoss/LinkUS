@@ -138,6 +138,47 @@ export async function administrarParticipante(req, res) {
   }
 }
 
+export async function sairGrupo(req, res) {
+  const info = req.body;
+  const acharUsuarioGrupoSQL =
+    "SELECT u.id_usuario, p.funcao from usuario u join participante p on p.fk_participante = u.id_usuario join grupo g on p.fk_grupo = g.id_grupo where u.email = ? and g.id_grupo = ?";
+  const temOutroAdminSQL =
+    "SELECT id_usuario from usuario u join participante p on p.fk_participante = u.id_usuario join grupo g on p.fk_grupo = g.id_grupo where g.id_grupo = ? and u.id_usuario != ? and p.funcao = 'admin'";
+  const sairGrupoSQL =
+    "DELETE from participante where fk_participante = ? and fk_grupo = ?";
+  try {
+    const [resultAcharUsuarioGrupo] = await pool.query(acharUsuarioGrupoSQL, [
+      info.email,
+      info.id_grupo,
+    ]);
+
+    if (!resultAcharUsuarioGrupo[0])
+      return res.status(403).send("Não foi encontrado o usuário no grupo");
+
+    if (resultAcharUsuarioGrupo[0].funcao === "admin") {
+      const [resultTemOutroAdmin] = await pool.query(temOutroAdminSQL, [
+        info.id_grupo,
+        resultAcharUsuarioGrupo[0].id_usuario,
+      ]);
+      if (!resultTemOutroAdmin[0])
+        return res
+          .status(400)
+          .send(
+            "O usuário é o único administrador, promova outro administrador antes"
+          );
+    }
+
+    await pool.query(sairGrupoSQL, [
+      resultAcharUsuarioGrupo[0].id_usuario,
+      info.id_grupo,
+    ]);
+    return res.status(200).send("Usuário saiu do grupo com sucesso");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Erro interno do servidor");
+  }
+}
+
 export async function acharGrupos(req, res) {
   const acharGruposSQL = "SELECT nome, descricao from grupo";
 
