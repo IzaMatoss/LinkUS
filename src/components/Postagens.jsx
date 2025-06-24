@@ -10,6 +10,7 @@ import { useConexao } from "./providers/useConexao";
 
 function Postagens({ termo }) {
   const navigate = useNavigate();
+  const [interacaoOcorrendo, setInteracaoOcorrendo] = useState(false);
   const { usuario, token } = useAutenticador();
   const { postagens, setReloadPostagens } = usePostagens();
   const [postagensFiltradas, setPostagensFiltradas] = useState(postagens);
@@ -17,102 +18,105 @@ function Postagens({ termo }) {
   const { conexoesUsuario, conexoesUsuarioLoading, acharConexoesPorUsuario } =
     useConexao();
 
-  console.log(usuario);
-
   async function interagirPostagem(postagem, tipo, comentario) {
-    if (
-      (comentario && !comentario.interacao) ||
-      (!comentario && !postagem.interacao)
-    ) {
-      const data = {
-        id_postagem: postagem.id_postagem,
-        nomeAutor: usuario.nome,
-        tipo,
-        id_comentario: comentario ? comentario.id_comentario : null,
-      };
+    if (!interacaoOcorrendo) {
+      setInteracaoOcorrendo(true);
+      if (
+        (comentario && !comentario.interacao) ||
+        (!comentario && !postagem.interacao)
+      ) {
+        const data = {
+          id_postagem: postagem.id_postagem,
+          nomeAutor: usuario.nome,
+          tipo,
+          id_comentario: comentario ? comentario.id_comentario : null,
+        };
 
-      try {
-        const result = await fetch(
-          "https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/criarInteracao",
-          {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (result.status !== 200) {
-          console.error(
-            "Erro ao tentar interagir na postagem:",
-            await result.text()
+        try {
+          const result = await fetch(
+            "https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/criarInteracao",
+            {
+              method: "POST",
+              body: JSON.stringify(data),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
-          return;
+
+          if (result.status !== 200) {
+            console.error(
+              "Erro ao tentar interagir na postagem:",
+              await result.text()
+            );
+            return;
+          }
+
+          setReloadPostagens();
+        } catch (error) {
+          console.error(error);
         }
-
-        setReloadPostagens();
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (
-      (!comentario &&
-        ((postagem.interacao === "like" && tipo == "like") ||
-          (postagem.interacao === "dislike" && tipo == "dislike"))) ||
-      (comentario &&
-        ((comentario.interacao === "like" && tipo == "like") ||
-          (comentario.interacao === "dislike" && tipo == "dislike")))
-    ) {
-      try {
-        const res = await fetch(
-          `https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/deletarInteracao/${postagem.id_postagem}/${usuario.nome}/${comentario ? comentario.id_comentario : "nenhum"}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (res.status === 200) setReloadPostagens((prev) => !prev);
-        else {
-          console.error(
-            "Erro ao tentar remover interação: " + (await res.text())
+      } else if (
+        (!comentario &&
+          ((postagem.interacao === "like" && tipo == "like") ||
+            (postagem.interacao === "dislike" && tipo == "dislike"))) ||
+        (comentario &&
+          ((comentario.interacao === "like" && tipo == "like") ||
+            (comentario.interacao === "dislike" && tipo == "dislike")))
+      ) {
+        try {
+          const res = await fetch(
+            `https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/deletarInteracao/${postagem.id_postagem}/${usuario.nome}/${comentario ? comentario.id_comentario : "nenhum"}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
+
+          if (res.status === 200) setReloadPostagens((prev) => !prev);
+          else {
+            console.error(
+              "Erro ao tentar remover interação: " + (await res.text())
+            );
+          }
+        } catch (error) {
+          console.error("Erro interno do servidor: " + error);
         }
-      } catch (error) {
-        console.error("Erro interno do servidor: " + error);
-      }
-    } else {
-      const data = {
-        nome: usuario.nome,
-        id_postagem: postagem.id_postagem,
-        interacao: tipo,
-        id_comentario: comentario ? comentario.id_comentario : null,
-      };
+      } else {
+        const data = {
+          nome: usuario.nome,
+          id_postagem: postagem.id_postagem,
+          interacao: tipo,
+          id_comentario: comentario ? comentario.id_comentario : null,
+        };
 
-      try {
-        const res = await fetch(
-          `https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/atualizarInteracao`,
-          {
-            method: "PUT",
-            body: JSON.stringify(data),
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (res.status !== 200)
-          console.error(
-            "Erro ao tentar atualizar a interação" + (await res.text())
+        try {
+          const res = await fetch(
+            `https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/atualizarInteracao`,
+            {
+              method: "PUT",
+              body: JSON.stringify(data),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
-        else setReloadPostagens((prev) => !prev);
-      } catch (error) {
-        console.error("Erro interno do servidor: " + error);
+
+          if (res.status !== 200)
+            console.error(
+              "Erro ao tentar atualizar a interação" + (await res.text())
+            );
+          else setReloadPostagens((prev) => !prev);
+        } catch (error) {
+          console.error("Erro interno do servidor: " + error);
+        }
       }
+
+      setInteracaoOcorrendo(false);
     }
   }
 
@@ -167,9 +171,40 @@ function Postagens({ termo }) {
           src={comentario.url_foto ? comentario.url_foto : "./icons/padrao.svg"}
           alt="Foto do usuário"
         />
-        <div>
+        <div id="conteudo-comentario">
           <h2>{comentario.nome}</h2>
           <p>{comentario.conteudo}</p>
+          {(post.nome === usuario.nome || usuario.role === "admin") && (
+            <img
+              src="./icons/lixeira.svg"
+              alt="Ícone para deletar um comentário"
+              onClick={async () => {
+                const data = {
+                  email: usuario.email,
+                  id_comentario: comentario.id_comentario,
+                };
+
+                const res = await fetch(
+                  "https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/comentario/deletarComentario",
+                  {
+                    method: "DELETE",
+                    body: JSON.stringify(data),
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+
+                if (res.status != 200) {
+                  console.error(
+                    "Erro ao excluir a postagem: ",
+                    await res.text()
+                  );
+                } else setReloadPostagens((val) => !val);
+              }}
+            />
+          )}
           <div>
             <img
               onClick={async () => interagirPostagem(post, "like", comentario)}
@@ -329,6 +364,7 @@ function Postagens({ termo }) {
                       navigate(`/usuario`, {
                         state: postagem,
                       });
+                    else navigate("/perfil");
                   }}
                 >
                   <img

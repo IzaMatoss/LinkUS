@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useAutenticador } from "./providers/useAutenticador";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import Erro from "./Erro";
 
 function GrupoInfo({ grupo }) {
   const { usuario, token } = useAutenticador();
   const [atualizarGrupo, setAtualizarGrupo] = useState();
   const [participantes, setParticipantes] = useState();
+  const [erro, setErro] = useState();
 
   useEffect(() => {
     if (grupo) {
@@ -32,8 +34,32 @@ function GrupoInfo({ grupo }) {
       acharParticipantes();
     }
   }, [grupo, atualizarGrupo]);
+
+  if (erro) return <Erro mensagem={erro} setModalErro={setErro} />;
+
   return (
     <div id="grupo-info">
+      <img
+        src="./icons/logout.svg"
+        alt="Ícone de sair do grupo"
+        onClick={async () => {
+          const data = { email: usuario.email, nome: grupo.nome };
+          const res = await fetch(
+            "https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/grupo/sairGrupo",
+            {
+              method: "DELETE",
+              body: JSON.stringify(data),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `bearer ${token}`,
+              },
+            }
+          );
+
+          if (res.status !== 200) setErro(await res.text());
+          else setAtualizarGrupo((val) => !val);
+        }}
+      />
       <span>
         <img src={grupo.url_foto ?? "./icons/padrao.svg"} alt="Foto do grupo" />
       </span>
@@ -49,7 +75,7 @@ function GrupoInfo({ grupo }) {
         <h2>Descrição do grupo</h2>
         <p>{grupo.descricao}</p>
       </div>
-      {participantes && <p>{participantes.length} membros</p>}
+      {participantes && <p>{participantes.length} membro(s)</p>}
       <ul>
         {participantes &&
           participantes.map((participante) => {
@@ -85,11 +111,7 @@ function GrupoInfo({ grupo }) {
                         }
                       );
 
-                      if (res.status !== 200)
-                        console.error(
-                          "Erro ao tentar atualizar função do usuário: " +
-                            (await res.text())
-                        );
+                      if (res.status !== 200) setErro(await res.text());
                       else setAtualizarGrupo((val) => !val);
                     }
                   }}

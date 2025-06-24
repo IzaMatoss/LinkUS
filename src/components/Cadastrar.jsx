@@ -5,17 +5,21 @@ import { useAutenticador } from "./providers/useAutenticador";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useEffect } from "react";
+import Erro from "./Erro";
 
 function Cadastrar() {
   const { usuario, token } = useAutenticador();
   const [dataNascimento, setDataNascimento] = useState();
   const navigate = useNavigate();
+  const [erro, setErro] = useState();
 
   useEffect(() => {
     if (usuario || token) {
       navigate("/post");
     }
   }, [usuario, token, navigate]);
+
+  if (erro) return <Erro mensagem={erro} setModalErro={setErro} />;
 
   return (
     <article aria-label="cadastrar" id="cadastrar">
@@ -36,7 +40,6 @@ function Cadastrar() {
               data_nascimento: dataNascimento?.toISOString().split("T")[0],
             };
 
-            console.log(dados);
             try {
               const result = await fetch(
                 "https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/usuario/criarUsuario",
@@ -49,14 +52,11 @@ function Cadastrar() {
                 }
               );
 
-              if (result.status !== 201)
-                return console.log(
-                  "Erro ao cadastrar: " + (await result.text())
-                );
-
-              navigate("/post", {
-                state: { email: data.get("email"), senha: data.get("senha") },
-              });
+              if (result.status !== 201) setErro(await result.text());
+              else
+                navigate("/post", {
+                  state: { email: data.get("email"), senha: data.get("senha") },
+                });
             } catch (error) {
               console.log(error);
             }

@@ -12,6 +12,7 @@ function PostagensUsuario() {
   const [novosInteresses, setNovosInteresses] = useState([]);
   const [ativarInput, setAtivarInput] = useState(false);
   const [jaCarregou, setJaCarregou] = useState(false);
+  const [interacaoOcorrendo, setInteracaoOcorrendo] = useState(false);
 
   async function atualizarPerfil() {
     const data = {};
@@ -57,92 +58,97 @@ function PostagensUsuario() {
   }
 
   async function interagirPostagem(postagem, tipo) {
-    if (!postagem.interacao) {
-      const data = {
-        id_postagem: postagem.id_postagem,
-        nomeAutor: usuario.nome,
-        tipo,
-        id_comentario: null,
-      };
+    if (!interacaoOcorrendo) {
+      setInteracaoOcorrendo(true);
+      if (!postagem.interacao) {
+        const data = {
+          id_postagem: postagem.id_postagem,
+          nomeAutor: usuario.nome,
+          tipo,
+          id_comentario: null,
+        };
 
-      try {
-        const result = await fetch(
-          "https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/criarInteracao",
-          {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (result.status !== 200) {
-          console.error(
-            "Erro ao tentar interagir na postagem:",
-            await result.text()
+        try {
+          const result = await fetch(
+            "https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/criarInteracao",
+            {
+              method: "POST",
+              body: JSON.stringify(data),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
-          return;
+
+          if (result.status !== 200) {
+            console.error(
+              "Erro ao tentar interagir na postagem:",
+              await result.text()
+            );
+            return;
+          }
+
+          acharPostagensPorUsuario(usuario.nome);
+        } catch (error) {
+          console.error(error);
         }
-
-        acharPostagensPorUsuario(usuario.nome);
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (
-      (postagem.interacao === "like" && tipo == "like") ||
-      (postagem.interacao === "dislike" && tipo == "dislike")
-    ) {
-      try {
-        const res = await fetch(
-          `https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/deletarInteracao/${postagem.id_postagem}/${usuario.nome}/nenhum`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (res.status === 200) acharPostagensPorUsuario(usuario.nome);
-        else {
-          console.error(
-            "Erro ao tentar remover interação: " + (await res.text())
+      } else if (
+        (postagem.interacao === "like" && tipo == "like") ||
+        (postagem.interacao === "dislike" && tipo == "dislike")
+      ) {
+        try {
+          const res = await fetch(
+            `https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/deletarInteracao/${postagem.id_postagem}/${usuario.nome}/nenhum`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
+
+          if (res.status === 200) acharPostagensPorUsuario(usuario.nome);
+          else {
+            console.error(
+              "Erro ao tentar remover interação: " + (await res.text())
+            );
+          }
+        } catch (error) {
+          console.error("Erro interno do servidor: " + error);
         }
-      } catch (error) {
-        console.error("Erro interno do servidor: " + error);
-      }
-    } else {
-      const data = {
-        nome: usuario.nome,
-        id_postagem: postagem.id_postagem,
-        interacao: tipo,
-        id_comentario: null,
-      };
+      } else {
+        const data = {
+          nome: usuario.nome,
+          id_postagem: postagem.id_postagem,
+          interacao: tipo,
+          id_comentario: null,
+        };
 
-      try {
-        const res = await fetch(
-          `https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/atualizarInteracao`,
-          {
-            method: "PUT",
-            body: JSON.stringify(data),
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (res.status !== 200)
-          console.error(
-            "Erro ao tentar atualizar a interação" + (await res.text())
+        try {
+          const res = await fetch(
+            `https://app-4aeaa295-402a-4d09-80df-d55bc4a98856.cleverapps.io/interacao/atualizarInteracao`,
+            {
+              method: "PUT",
+              body: JSON.stringify(data),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
-        else acharPostagensPorUsuario(usuario.nome);
-      } catch (error) {
-        console.error("Erro interno do servidor: " + error);
+
+          if (res.status !== 200)
+            console.error(
+              "Erro ao tentar atualizar a interação" + (await res.text())
+            );
+          else acharPostagensPorUsuario(usuario.nome);
+        } catch (error) {
+          console.error("Erro interno do servidor: " + error);
+        }
       }
+
+      setInteracaoOcorrendo(false);
     }
   }
 

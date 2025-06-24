@@ -190,3 +190,14 @@
 #modal-solicitacao {
   cursor: pointer;
 }
+
+#conteudo-comentario {
+  position: relative;
+}
+
+#conteudo-comentario > img {
+  position: absolute;
+  right: 16px;
+  top: 10px;
+  cursor: pointer;
+}
