@@ -18,7 +18,7 @@ function Header({ tipo, setTermo }) {
             <p>Contato</p>
           </Link>
           <Link to={tipo !== "pagina-inicial" ? "/cadastro" : "/entrar"}>
-            <p>{tipo !== "pagina-inicial" ? "Criar conta" : "Entrar"}</p>
+            <p>{tipo !== "pagina-inicial" ? "Cadastrar" : "Entrar"}</p>
           </Link>
         </div>
       </header>

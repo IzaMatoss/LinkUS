@@ -55,3 +55,61 @@ header input {
   left: 16px;
   cursor: pointer;
 }
+
+@media (max-width: 800px) {
+  header {
+    justify-content: start;
+    gap: 80px;
+  }
+
+  header div p {
+    font-size: 1.2rem;
+  }
+
+  header a + a p {
+    padding: 4px 28px;
+  }
+
+  header > a > img {
+    width: 140px;
+  }
+}
+
+@media (max-width: 600px) {
+  header {
+    gap: 60px;
+    padding: 20px 32px;
+  }
+
+  header div p {
+    font-size: 1.2rem;
+  }
+
+  header > a > img {
+    width: 120px;
+  }
+}
+
+@media (max-width: 440px) {
+  header {
+    gap: 28px;
+    padding-left: 20px;
+  }
+
+  header div {
+    gap: 32px;
+    margin-right: 12px;
+  }
+
+  header div p {
+    font-size: 1rem;
+  }
+
+  header a + a p {
+    padding: 4px 20px;
+  }
+
+  header > a > img {
+    width: 80px;
+  }
+}
