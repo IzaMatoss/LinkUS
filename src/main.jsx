@@ -24,7 +24,7 @@ createRoot(document.getElementById("root")).render(
         <PostagensProvider>
           <MensagensProvider>
             <ConexoesProvider>
-              <Router>
+              <Router basename="/LinkUS">
                 <Routes>
                   <Route path="/" element={<App />} />
                   <Route path="/entrar" element={<Entrar />} />
