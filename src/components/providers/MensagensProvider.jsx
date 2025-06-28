@@ -24,7 +24,6 @@ export function MensagensProvider({ children }) {
         console.log("Erro de requisição: " + (await result.text()));
       else {
         const json = await result.json();
-        console.log(json);
         setMensagensUsuario(json);
       }
     } catch (error) {

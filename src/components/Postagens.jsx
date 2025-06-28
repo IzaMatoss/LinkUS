@@ -122,7 +122,6 @@ function Postagens({ termo }) {
 
   useEffect(() => {
     if (postagens) {
-      console.log(postagens);
       const postagensValidas = postagens.filter(
         (p) => p && typeof p === "object"
       );
@@ -301,7 +300,6 @@ function Postagens({ termo }) {
                   if (error) return console.error(error);
                   info.url_midia = `https://uryeqjptemdyznogbeus.supabase.co/storage/v1/object/public/linkus/${data.path}`;
                   info.tipo = midia.tipo;
-                  console.log(info);
                 } catch (error) {
                   console.error(error);
                 }

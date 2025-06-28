@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://projetos-em-grupo.github.io/LinkUS",
+  "homepage": "https://projetos-em-grupo.github.io/LinkUS/",
   "scripts": {
     "dev": "vite",
     "predeploy": "npm run build",

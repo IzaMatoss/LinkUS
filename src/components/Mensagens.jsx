@@ -17,7 +17,6 @@ function Mensagens() {
   useEffect(() => {
     if (!token) {
       navigate("/entrar");
-      return null;
     }
   }, [token, navigate]);
 
