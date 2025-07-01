@@ -91,3 +91,98 @@
   cursor: pointer;
   border: 2px solid var(--c9);
 }
+
+@media (max-width: 800px) {
+  .acessar-div {
+    margin-top: 32px;
+  }
+
+  .acessar-div form {
+    width: 260px;
+    padding: 16px 32px;
+  }
+
+  .acessar-div form h2 {
+    font-size: 1.4rem;
+  }
+
+  .acessar-div form p {
+    font-size: 0.9rem;
+  }
+
+  .acessar-div input {
+    padding: 12px 20px;
+  }
+
+  .acessar-div .input-date {
+    width: 105%;
+  }
+
+  .acessar-div img:first-child,
+  .acessar-div form + img {
+    width: 140px;
+    height: 140px;
+  }
+
+  .acessar-div form > button {
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .acessar-div {
+    gap: 20px;
+    flex-direction: row-reverse;
+  }
+
+  .acessar-div form {
+    width: 260px;
+    padding: 16px 32px;
+  }
+
+  .acessar-div img:first-child {
+    align-self: flex-start;
+    width: 100px;
+    height: 100px;
+  }
+
+  .acessar-div form + img {
+    display: none;
+  }
+}
+
+@media (max-width: 440px) {
+  .acessar-div form {
+    width: 100%;
+  }
+
+  .acessar-div img:first-child {
+    display: none;
+  }
+
+  .acessar-div form h2 {
+    font-size: 1.2rem;
+  }
+
+  .acessar-div form p {
+    font-size: 0.85rem;
+  }
+
+  .acessar-div input {
+    padding: 10px 20px;
+  }
+
+  .acessar-div input + a p {
+    font-size: 0.85rem;
+    margin: 12px 0px;
+  }
+
+  .acessar-div .input-date {
+    width: auto;
+  }
+
+  .acessar-div form > button {
+    font-size: 0.9rem;
+    padding: 9px 12px;
+  }
+}

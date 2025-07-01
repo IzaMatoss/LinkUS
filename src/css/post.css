@@ -2,3 +2,45 @@ article > div {
   display: grid;
   grid-template-columns: 1fr 1.8fr 1fr;
 }
+
+@media (max-width: 1200px) {
+  article > div {
+    margin-left: 0px;
+  }
+
+  #postagens-article > div,
+  #perfil-article > div {
+    grid-template-columns: 1fr 2fr;
+    margin-right: 24px;
+    margin-left: 24px;
+  }
+}
+
+@media (max-width: 1000px) {
+  #sidebar {
+    display: none;
+  }
+
+  article > div {
+    grid-template-columns: 1fr 1fr;
+    margin-left: 28px;
+    margin-right: 28px;
+  }
+
+  #postagens-article > div,
+  #perfil-article > div {
+    margin-left: 0px;
+    grid-template-columns: 1fr;
+  }
+
+  #postagens {
+    margin-left: 32px;
+  }
+}
+
+@media (max-width: 440px) {
+  article > div {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}

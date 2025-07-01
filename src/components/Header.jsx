@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAutenticador } from "./providers/useAutenticador.jsx";
-import Loading from "./Loading.jsx";
 
 function Header({ tipo, setTermo }) {
   const navigate = useNavigate();
   const { usuario, logout } = useAutenticador();
+  const [menuAberto, setMenuAberto] = useState(false);
 
   if (tipo === "pagina-inicial" || tipo === "cadastro")
     return (
@@ -59,7 +59,43 @@ function Header({ tipo, setTermo }) {
             logout();
           }}
         />
+        <img
+          src="./icons/menu-hamburguer.svg"
+          alt="Menu de opções"
+          onClick={() => setMenuAberto(true)}
+        />
       </div>
+      {menuAberto && (
+        <div id="menu">
+          <img
+            src="./icons/fechar.svg"
+            alt="Ícone para fechar o menu"
+            onClick={() => setMenuAberto(false)}
+          />
+          <Link to="/post">
+            <img src="./icons/casa.svg" alt="Ícone da página inicial" />
+            <p>Home</p>
+          </Link>
+          <Link to="/mensagem">
+            <img
+              src="./icons/mensagem.svg"
+              alt="Ícone da página de mensagens"
+            />
+            <p>Mensagens</p>
+          </Link>
+          <Link to="/amigo">
+            <img src="./icons/amigos.svg" alt="Ícone da página de amizades" />
+            <p>Amizades</p>
+          </Link>
+          <Link to="/perfil">
+            <img
+              src="./icons/padrao-escuro.svg"
+              alt="Ícone da página de perfil"
+            />
+            <p>Perfil</p>
+          </Link>
+        </div>
+      )}
     </header>
   );
 }

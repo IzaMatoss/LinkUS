@@ -28,8 +28,12 @@ function MensagensUsuario({ conversa, setConversa, setModal, redirec }) {
             <div>
               <p>@{conversa.nome}</p>
               <p>
-                {conversa.texto?.length > 40
-                  ? conversa.texto.substring(0, 40) + "..."
+                {conversa.texto?.length >
+                document.getElementById("body").clientWidth / 37
+                  ? conversa.texto.substring(
+                      0,
+                      document.getElementById("body").clientWidth / 37
+                    ) + "..."
                   : conversa.texto}
               </p>
             </div>
@@ -65,11 +69,17 @@ function MensagensUsuario({ conversa, setConversa, setModal, redirec }) {
                 />
                 <div>
                   <p>@{mensagem.nome}</p>
-                  <p>
-                    {mensagem.texto?.length > 40
-                      ? mensagem.texto.substring(0, 40) + "..."
-                      : mensagem.texto}
-                  </p>
+                  {
+                    <p>
+                      {mensagem.texto?.length >
+                      document.getElementById("body").clientWidth / 37
+                        ? mensagem.texto.substring(
+                            0,
+                            document.getElementById("body").clientWidth / 37
+                          ) + "..."
+                        : mensagem.texto}
+                    </p>
+                  }
                 </div>
               </li>
             );

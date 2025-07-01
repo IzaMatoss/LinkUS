@@ -20,6 +20,10 @@ function Sidebar({ ativo }) {
         <img src="./icons/amigos.svg" alt="Ícone da página de amizades" />
         <p>Amizades</p>
       </Link>
+      <Link className={ativo === "perfil" ? "active" : ""} to="/perfil">
+        <img src="./icons/padrao-escuro.svg" alt="Ícone da página de perfil" />
+        <p>Perfil</p>
+      </Link>
       <div>
         <h2>Meus grupos</h2>
         <ul>
@@ -38,7 +42,11 @@ function Sidebar({ ativo }) {
                     alt="Imagem do grupo"
                   />
                   <div>
-                    <p>{grupo.nome}</p>
+                    <p>
+                      {grupo.nome?.length > 12
+                        ? grupo.nome.substring(0, 12) + "..."
+                        : grupo.nome}
+                    </p>
                     <p>
                       {grupo.descricao?.length > 20
                         ? grupo.descricao.substring(0, 20) + "..."

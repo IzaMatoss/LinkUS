@@ -75,11 +75,24 @@ li {
 }
 
 .container {
-  margin: 0px 60px;
+  margin: 0px 48px;
 }
 
 #foto-perfil {
   border-radius: 80px;
   width: 60px;
   height: 60px;
+}
+
+@media (max-width: 800px) {
+  .container {
+    margin: 0px 40px;
+  }
+}
+
+@media (max-width: 500px) {
+  #foto-perfil {
+    width: 48px;
+    height: 48px;
+  }
 }

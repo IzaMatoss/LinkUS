@@ -1,5 +1,5 @@
 #nova-mensagem {
-  margin-top: 100px;
+  margin-top: 40px;
 }
 
 #nova-mensagem h2 {
@@ -200,4 +200,20 @@
 
 #modal-mensagem img {
   border-radius: 24px;
+}
+
+@media (max-width: 440px) {
+  #nova-mensagem h2 {
+    font-size: 1.5rem;
+  }
+
+  #nova-mensagem > p {
+    margin-top: 12px;
+    font-size: 1.1rem;
+  }
+
+  #nova-mensagem > a p {
+    font-size: 0.9rem;
+    padding: 12px 24px;
+  }
 }

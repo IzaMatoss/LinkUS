@@ -23,7 +23,7 @@ function Mensagens() {
   return (
     <article aria-label="Mensagens">
       <Header tipo="logado" setTermo={setTermo} />
-      <div>
+      <div id="mensagens-div">
         <Sidebar ativo={"mensagem"} />
         <MensagensUsuario
           termo={termo}

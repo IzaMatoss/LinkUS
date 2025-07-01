@@ -17,10 +17,10 @@ function Perfil() {
   }, [token, navigate]);
 
   return (
-    <article aria-label="Perfil">
+    <article aria-label="Perfil" id="perfil-article">
       <Header tipo="logado" setTermo={setTermo} />
       <div>
-        <Sidebar />
+        <Sidebar ativo="perfil" />
         <PostagensUsuario termo={termo} />
         <ConversasRecentes />
       </div>

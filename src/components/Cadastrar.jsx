@@ -73,7 +73,7 @@ function Cadastrar() {
           <DatePicker
             selected={dataNascimento}
             onChange={(date) => setDataNascimento(date)}
-            placeholderText="Selecione sua data de nascimento"
+            placeholderText="data de nascimento"
             dateFormat="dd/MM/yyyy"
             className="input-date"
             showYearDropdown

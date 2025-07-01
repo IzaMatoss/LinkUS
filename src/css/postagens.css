@@ -15,6 +15,10 @@
   padding: 20px;
 }
 
+#postagens h2 {
+  font: 600 1.6rem/1.3 "Lato";
+}
+
 #postagens .interacao {
   cursor: pointer;
 }
@@ -96,7 +100,7 @@
 
 #imagem-post,
 #video-post {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 #conteudo-post ul {
@@ -200,4 +204,36 @@
   right: 16px;
   top: 10px;
   cursor: pointer;
+}
+
+@media (max-width: 500px) {
+  #video-post,
+  #imagem-post {
+    max-width: 240px;
+  }
+
+  #postagens .conteudo {
+    padding: 12px;
+  }
+
+  #postagens h2 {
+    font-size: 1.1rem;
+  }
+
+  #postagens > ul > li > p {
+    font-size: 1.1rem;
+  }
+
+  #postagens #novo-post {
+    gap: 20px;
+  }
+
+  #postagens #novo-post input {
+    padding-left: 16px;
+    height: 2.6rem;
+  }
+
+  #conteudo-post input {
+    margin-left: 0px;
+  }
 }
